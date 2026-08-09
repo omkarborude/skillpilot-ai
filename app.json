@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "SkillPilot AI",
+    "slug": "skillpilot-ai",
+    "version": "0.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": { "supportsTablet": true },
+    "android": { "adaptiveIcon": { "backgroundColor": "#6C5CE7" } },
+    "web": { "bundler": "metro" }
+  }
+}

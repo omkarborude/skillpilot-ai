@@ -1,6 +1,7 @@
+export type ScreenName = 'createGoal' | 'aiPlan' | 'dashboard' | 'plan' | 'technique' | 'practice' | 'coach' | 'progress' | 'profile';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced';
 export type TechniqueStatus = 'locked' | 'available' | 'completed' | 'skipped';
-export type ResourceType = 'video' | 'reading' | 'practice';
+export type ResourceType = 'video' | 'reading';
 
 export interface LearningGoal {
   hobby: string;
@@ -15,7 +16,6 @@ export interface LearningResource {
   type: ResourceType;
   durationMinutes: number;
   source: string;
-  url: string;
 }
 
 export interface Technique {
@@ -45,7 +45,13 @@ export interface PracticeSession {
   completedAt: string;
 }
 
-export interface Profile {
-  name: string;
-  avatarInitials: string;
+export interface AppState {
+  goal: LearningGoal;
+  plan: LearningPlan;
+  selectedTechniqueId: string;
+  completedTechniqueIds: string[];
+  skippedTechniqueIds: string[];
+  notesByTechniqueId: Record<string, string>;
+  practiceHistory: PracticeSession[];
+  streak: number;
 }

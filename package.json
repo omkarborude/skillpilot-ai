@@ -1,40 +1,38 @@
 {
   "name": "skillpilot-ai",
   "private": true,
-  "version": "0.1.0",
-  "type": "module",
+  "version": "0.2.0",
+  "main": "expo/AppEntry.js",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
     "lint": "eslint .",
-    "typecheck": "tsc -b --pretty false",
-    "test": "vitest run",
-    "preview": "vite preview"
+    "typecheck": "tsc --noEmit --pretty false",
+    "test": "jest --runInBand"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "vite": "latest",
-    "typescript": "latest",
+    "@react-native-async-storage/async-storage": "latest",
+    "expo": "latest",
+    "expo-status-bar": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "react-router-dom": "latest",
-    "zustand": "latest",
-    "zod": "latest",
-    "lucide-react": "latest",
-    "framer-motion": "latest",
-    "@tanstack/react-query": "latest"
+    "react-native": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
-    "@eslint/js": "latest",
+    "@babel/core": "latest",
+    "@types/jest": "latest",
+    "@types/react": "latest",
     "eslint": "latest",
-    "eslint-plugin-react-hooks": "latest",
-    "eslint-plugin-react-refresh": "latest",
-    "globals": "latest",
+    "eslint-config-expo": "latest",
+    "jest": "latest",
+    "jest-expo": "latest",
     "prettier": "latest",
-    "vitest": "latest",
-    "jsdom": "latest",
-    "@testing-library/react": "latest",
-    "@testing-library/jest-dom": "latest",
-    "@testing-library/user-event": "latest"
+    "typescript": "latest"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testMatch": ["**/__tests__/**/*.test.ts"]
   }
 }

@@ -1,14 +1,14 @@
 # SkillPilot AI
 
-SkillPilot AI helps people choose a hobby goal and turn it into a focused learning path without information overload.
+SkillPilot AI is a React Native learning app that helps people choose a hobby, define a realistic goal, and follow a focused 5–8 technique plan without information overload.
 
-## Current phase
+## Product problem
 
-This repository is in the foundation phase. The app shell, routing entry point, provider composition, design tokens, shared primitives, TypeScript configuration, lint configuration, and test/build scripts are in place.
+Hobby learners often get stuck browsing endless tutorials. SkillPilot narrows the path to the next useful technique, a small practice session, curated resources, and contextual AI coaching.
 
-## Product direction
+## Current implementation
 
-The product will focus on nine core screens:
+The app is implemented as an Expo React Native app with the requested nine primary screens:
 
 1. Create Goal
 2. AI Plan Generation
@@ -20,58 +20,35 @@ The product will focus on nine core screens:
 8. Progress
 9. Profile
 
+Secondary features such as resources, notes, AI reflection, achievements, skip, replace, loading-style surfaces, and mobile bottom sheets are implemented inside those screens rather than as extra standalone screens.
+
 ## Architecture
 
-The codebase follows a feature-first frontend structure:
-
 ```txt
+App.tsx
 src/
-  app/                 # Router, providers, and app layout
-  features/            # Screen-specific feature areas
-  shared/              # Reusable components, types, constants, lib, and utilities
-  services/            # API and repository boundaries
-  data/                # Local JSON data sources for the first implementation
-  assets/              # Static assets
+  app/          # Root app flow and theme tokens
+  components/   # Reusable native UI primitives
+  data/         # Local seed learning plan and AI copy
+  services/ai/  # AI service, provider abstraction, and validation
+  state/        # AsyncStorage-backed state hook
+  types/        # Domain types
+  utils/        # Pure utilities
 ```
 
-The intended data flow is:
+## Data flow
 
 ```txt
-Page -> Feature Hook -> Service -> Repository -> Data Source
+Screen -> state hook/service -> local seed data / AsyncStorage / mock AI provider
 ```
 
-UI code should not import JSON directly. Repository implementations can later move from local data to HTTP APIs without changing screens.
-
-## AI architecture
-
-The app will start with a mock AI provider and keep React components isolated from provider SDKs:
-
-```txt
-React -> useAI() -> AIService -> AIProvider -> MockAIProvider / future backend provider
-```
-
-Model output must be validated before entering application state.
-
-## Tech stack
-
-- React
-- TypeScript
-- Vite
-- React Router
-- TanStack Query
-- Zustand
-- Zod
-- Vitest
-- ESLint
-- Prettier
-
-Dependencies are declared in `package.json`. Installation currently depends on access to the npm registry.
+The UI does not call an AI SDK directly. `AIService` depends on an `AIProvider`, and the initial implementation uses `MockAIProvider`.
 
 ## Local setup
 
 ```bash
 npm install
-npm run dev
+npm run start
 ```
 
 ## Quality commands
@@ -80,5 +57,14 @@ npm run dev
 npm run lint
 npm run typecheck
 npm run test
-npm run build
 ```
+
+## Design direction
+
+The mobile UI follows the supplied mockup direction: premium cards, rounded surfaces, purple primary actions, concise copy, strong hierarchy, and bottom navigation.
+
+## Future improvements
+
+- Replace the mock AI provider with a backend-mediated provider.
+- Add React Navigation if deeper native navigation behavior is needed.
+- Add end-to-end device tests once dependency installation is available.
