@@ -8,6 +8,7 @@ import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, ProgressBar } from '@/components/ui';
 import { generationSteps } from '@/constants/product';
 import { aiProvider } from '@/services/aiProvider';
+import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 
@@ -15,6 +16,7 @@ export default function GeneratingScreen() {
   const router = useRouter();
   const goal = useJourneyStore((state) => state.goal);
   const setPlan = useJourneyStore((state) => state.setPlan);
+  const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
   const [activeStep, setActiveStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
@@ -113,7 +115,10 @@ export default function GeneratingScreen() {
           label={ready ? 'Open my learning plan' : 'Preparing your plan…'}
           icon={ready ? 'arrow-forward' : undefined}
           disabled={!ready}
-          onPress={() => router.replace('/(tabs)')}
+          onPress={() => {
+            completeOnboarding();
+            router.replace('/(tabs)');
+          }}
         />
       </Card>
     </Page>

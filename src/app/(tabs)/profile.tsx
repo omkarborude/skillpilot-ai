@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Share, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { ActionSheet } from '@/components/ActionSheet';
 import { EmptyJourney } from '@/components/EmptyJourney';
 import { Page } from '@/components/Page';
 import { Button, Card, Pill, ProgressBar, SectionHeading } from '@/components/ui';
+import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { calculateJourneyProgress, techniqueCounts } from '@/utils/learning';
@@ -17,6 +18,8 @@ export default function ProfileScreen() {
   const streakDays = useJourneyStore((state) => state.streakDays);
   const xp = useJourneyStore((state) => state.xp);
   const resetJourney = useJourneyStore((state) => state.resetJourney);
+  const logout = useAuthStore((state) => state.logout);
+  const restartOnboarding = useAuthStore((state) => state.restartOnboarding);
   const [showReset, setShowReset] = useState(false);
 
   if (!plan || !goal) {
@@ -38,8 +41,14 @@ export default function ProfileScreen() {
 
   const confirmReset = () => {
     resetJourney();
+    restartOnboarding();
     setShowReset(false);
     router.replace('/');
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.replace('/login' as Href);
   };
 
   return (
@@ -104,6 +113,7 @@ export default function ProfileScreen() {
       </Card>
 
       <Button label="Start a different goal" variant="danger" icon="refresh" onPress={() => setShowReset(true)} />
+      <Button label="Log out" variant="ghost" icon="log-out-outline" onPress={handleLogout} />
 
       <ActionSheet
         visible={showReset}
