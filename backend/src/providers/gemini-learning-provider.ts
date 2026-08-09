@@ -14,6 +14,19 @@ import type { LearningProvider } from './learning-provider.js';
 
 type StructuredSchema = typeof PlanDraftSchema | typeof TechniqueDraftSchema;
 
+const unsupportedGeminiSchemaKeys = new Set(['$schema', 'minLength', 'maxLength']);
+
+export function sanitizeGeminiSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sanitizeGeminiSchema);
+  if (!value || typeof value !== 'object') return value;
+
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !unsupportedGeminiSchemaKeys.has(key))
+      .map(([key, child]) => [key, sanitizeGeminiSchema(child)]),
+  );
+}
+
 export class GeminiLearningProvider implements LearningProvider {
   readonly name = 'gemini' as const;
   private readonly client: GoogleGenAI;
@@ -32,7 +45,9 @@ export class GeminiLearningProvider implements LearningProvider {
           response_format: {
             type: 'text',
             mime_type: 'application/json',
-            schema: z.toJSONSchema(schema, { target: 'draft-7' }),
+            schema: sanitizeGeminiSchema(
+              z.toJSONSchema(schema, { target: 'draft-7' }),
+            ) as Record<string, unknown>,
           },
         },
         { timeout: 20_000 },
