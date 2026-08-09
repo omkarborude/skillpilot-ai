@@ -8,6 +8,7 @@ import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, SectionHeading, SelectionCard, TextField } from '@/components/ui';
 import { dailyMinuteOptions, goalOptions, hobbyOptions, levelOptions } from '@/constants/product';
 import { aiProvider } from '@/services/aiProvider';
+import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { GoalReason, HobbyId, LearnerGoal, SkillLevel } from '@/types/learning';
@@ -17,6 +18,7 @@ export default function CreateGoalScreen() {
   const currentPlan = useJourneyStore((state) => state.plan);
   const setGoal = useJourneyStore((state) => state.setGoal);
   const setPlan = useJourneyStore((state) => state.setPlan);
+  const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
   const [hobbyId, setHobbyId] = useState<HobbyId>('guitar');
   const [customHobby, setCustomHobby] = useState('');
   const [reason, setReason] = useState<GoalReason>('confidence');
@@ -66,6 +68,7 @@ export default function CreateGoalScreen() {
     const demoPlan = await aiProvider.generatePlan(goal);
     setGoal(goal);
     setPlan(demoPlan);
+    completeOnboarding();
     setLoadingDemo(false);
     router.replace('/(tabs)');
   };

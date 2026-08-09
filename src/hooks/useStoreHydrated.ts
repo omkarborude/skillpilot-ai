@@ -1,19 +1,28 @@
 import { useSyncExternalStore } from 'react';
+import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 
 function subscribe(onStoreChange: () => void) {
-  const unsubscribeHydrate = useJourneyStore.persist.onHydrate(onStoreChange);
-  const unsubscribeFinish = useJourneyStore.persist.onFinishHydration(onStoreChange);
+  const unsubscribeJourneyHydrate = useJourneyStore.persist.onHydrate(onStoreChange);
+  const unsubscribeJourneyFinish = useJourneyStore.persist.onFinishHydration(onStoreChange);
+  const unsubscribeAuthHydrate = useAuthStore.persist.onHydrate(onStoreChange);
+  const unsubscribeAuthFinish = useAuthStore.persist.onFinishHydration(onStoreChange);
   return () => {
-    unsubscribeHydrate();
-    unsubscribeFinish();
+    unsubscribeJourneyHydrate();
+    unsubscribeJourneyFinish();
+    unsubscribeAuthHydrate();
+    unsubscribeAuthFinish();
   };
+}
+
+function hasHydrated() {
+  return useJourneyStore.persist.hasHydrated() && useAuthStore.persist.hasHydrated();
 }
 
 export function useStoreHydrated() {
   return useSyncExternalStore(
     subscribe,
-    useJourneyStore.persist.hasHydrated,
+    hasHydrated,
     () => true,
   );
 }

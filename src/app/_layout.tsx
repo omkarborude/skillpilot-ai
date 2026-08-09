@@ -1,23 +1,50 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, type Href, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RobotMascot } from '@/components/RobotMascot';
 import { useStoreHydrated } from '@/hooks/useStoreHydrated';
+import { useAuthStore } from '@/store/authStore';
 import { colors, spacing, typography } from '@/theme/tokens';
 
 void SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const hydrated = useStoreHydrated();
+  const router = useRouter();
+  const segments = useSegments();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasStartedLearning = useAuthStore((state) => state.hasStartedLearning);
+
+  const rootSegment = (segments as string[])[0];
+  const isAuthRoute = rootSegment === 'login' || rootSegment === 'otp';
+  const isOnboardingRoute = rootSegment === undefined || rootSegment === 'generating';
+  const isProtectedLearningRoute =
+    rootSegment === '(tabs)' || rootSegment === 'technique' || rootSegment === 'practice';
+  const shouldRedirectToLogin = hydrated && !isAuthenticated && !isAuthRoute;
+  const shouldRedirectToDashboard =
+    hydrated && isAuthenticated && hasStartedLearning && (isAuthRoute || isOnboardingRoute);
+  const shouldRedirectToOnboarding =
+    hydrated && isAuthenticated && !hasStartedLearning && (isAuthRoute || isProtectedLearningRoute);
 
   useEffect(() => {
     if (hydrated) void SplashScreen.hideAsync();
   }, [hydrated]);
 
-  if (!hydrated) {
+  useEffect(() => {
+    if (shouldRedirectToLogin) router.replace('/login' as Href);
+    else if (shouldRedirectToDashboard) router.replace('/(tabs)');
+    else if (shouldRedirectToOnboarding) router.replace('/');
+  }, [router, shouldRedirectToDashboard, shouldRedirectToLogin, shouldRedirectToOnboarding]);
+
+  if (
+    !hydrated ||
+    shouldRedirectToLogin ||
+    shouldRedirectToDashboard ||
+    shouldRedirectToOnboarding
+  ) {
     return (
       <View style={styles.loading}>
         <RobotMascot size="large" />
@@ -36,6 +63,8 @@ export default function RootLayout() {
           animation: 'slide_from_right',
         }}
       >
+        <Stack.Screen name="login" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="otp" />
         <Stack.Screen name="index" />
         <Stack.Screen name="generating" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
