@@ -1,0 +1,40 @@
+{
+  "name": "skillpilot-ai",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest",
+    "typescript": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "latest",
+    "zustand": "latest",
+    "zod": "latest",
+    "lucide-react": "latest",
+    "framer-motion": "latest",
+    "@tanstack/react-query": "latest"
+  },
+  "devDependencies": {
+    "@eslint/js": "latest",
+    "eslint": "latest",
+    "eslint-plugin-react-hooks": "latest",
+    "eslint-plugin-react-refresh": "latest",
+    "globals": "latest",
+    "prettier": "latest",
+    "vitest": "latest",
+    "jsdom": "latest",
+    "@testing-library/react": "latest",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/user-event": "latest"
+  }
+}
