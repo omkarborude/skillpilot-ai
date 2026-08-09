@@ -26,7 +26,9 @@ flowchart TD
     F --> S["Journey store"]
     F --> P["Plan and coach providers"]
     P --> M["Mock JSON provider"]
-    P -. backend phase .-> H["HTTP provider"]
+    P --> H["HTTP provider or local fallback"]
+    H --> B["Express API on Vercel"]
+    B --> G["Gemini or mock provider"]
     S --> A["AsyncStorage adapter"]
 ```
 
@@ -50,11 +52,13 @@ src/
   utils/                pure calculations and validation
 ```
 
-## Backend-ready AI plan
+## Backend AI plan
 
-Frontend phase uses deterministic dummy JSON so UI work is testable and independent of network quotas. Backend phase adds a small Fastify/TypeScript API with `POST /v1/plans/generate` and `POST /v1/coach/respond`. The API key remains server-side, AI output is constrained to a JSON schema, and invalid output is retried or replaced by a safe fallback plan.
+The frontend keeps deterministic JSON as an offline fallback and switches to HTTP when `EXPO_PUBLIC_API_URL` is configured. A separate `backend/` project contains an Express 5/TypeScript API designed for Vercel Functions. It provides plan generation, contextual coaching, and technique replacement. The API key remains server-side, request and AI output schemas are validated with Zod, and provider failures return a safe deterministic plan rather than breaking the learning flow.
 
-Initial model candidate: **Gemini 2.5 Flash-Lite**, because Google currently lists free-tier input/output and positions it for cost-efficient, at-scale usage. Quotas are rechecked immediately before submission because provider limits can change.
+The selected model is **Gemini 3.5 Flash-Lite**, a stable GA model that Google currently describes as its most cost-efficient 3.5 model and lists with free-tier input/output. The model is configurable by environment variable, and quotas are rechecked before submission because free limits can change.
+
+See [the backend architecture](BACKEND_ARCHITECTURE.md) for API contracts, deployment, security, and failure behavior.
 
 ## Quality gates
 
@@ -71,4 +75,3 @@ Initial model candidate: **Gemini 2.5 Flash-Lite**, because Google currently lis
 - [Expo unit testing with Jest](https://docs.expo.dev/develop/unit-testing/)
 - [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing)
 - [Gemini API rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
-

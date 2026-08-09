@@ -1,4 +1,5 @@
 import { LearnerGoal, LearningPlan, ReplacementMode, Technique } from '@/types/learning';
+import { HttpAIProvider } from './httpAIProvider';
 import { planRepository } from './planRepository';
 
 export interface AIPlanProvider {
@@ -10,7 +11,7 @@ export interface AIPlanProvider {
 const wait = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
-class MockAIProvider implements AIPlanProvider {
+export class MockAIProvider implements AIPlanProvider {
   async generatePlan(goal: LearnerGoal): Promise<LearningPlan> {
     return planRepository.getTemplate(goal);
   }
@@ -62,4 +63,37 @@ class MockAIProvider implements AIPlanProvider {
   }
 }
 
-export const aiProvider: AIPlanProvider = new MockAIProvider();
+class ResilientAIProvider implements AIPlanProvider {
+  constructor(
+    private readonly primary: AIPlanProvider,
+    private readonly fallback: AIPlanProvider,
+  ) {}
+
+  private async run<T>(operation: (provider: AIPlanProvider) => Promise<T>): Promise<T> {
+    try {
+      return await operation(this.primary);
+    } catch (error) {
+      console.warn('SkillPilot API unavailable; using the local learning provider.', error);
+      return operation(this.fallback);
+    }
+  }
+
+  generatePlan(goal: LearnerGoal) {
+    return this.run((provider) => provider.generatePlan(goal));
+  }
+
+  answerCoach(prompt: string, technique?: Technique) {
+    return this.run((provider) => provider.answerCoach(prompt, technique));
+  }
+
+  replaceTechnique(technique: Technique, mode: ReplacementMode) {
+    return this.run((provider) => provider.replaceTechnique(technique, mode));
+  }
+}
+
+const mockProvider = new MockAIProvider();
+const apiUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+
+export const aiProvider: AIPlanProvider = apiUrl
+  ? new ResilientAIProvider(new HttpAIProvider(apiUrl), mockProvider)
+  : mockProvider;

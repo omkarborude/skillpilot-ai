@@ -12,7 +12,10 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
-    "export:web": "expo export --platform web"
+    "export:web": "expo export --platform web",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:typecheck": "npm --prefix backend run typecheck",
+    "backend:test": "npm --prefix backend test"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.1.1",

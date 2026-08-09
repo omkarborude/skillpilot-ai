@@ -20,6 +20,7 @@ export type LearningResource = {
   type: ResourceType;
   durationLabel: string;
   description: string;
+  url?: string;
 };
 
 export type PracticeTask = {

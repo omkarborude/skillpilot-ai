@@ -24,10 +24,11 @@ Today’s plan, resource preview, lesson replacement, achievements, and confirma
 - Expo Router for Android, iOS, and responsive web
 - Zustand + AsyncStorage for small, persisted local journey state
 - Repository and AI-provider interfaces, currently backed by deterministic JSON
+- Express 5 + Zod backend with mock/Gemini provider adapters
 - React Native StyleSheet and design tokens; no heavyweight chart/UI framework
-- Jest, React Native Testing Library, ESLint, TypeScript, and GitHub Actions
+- Jest, Node test runner, React Native Testing Library, ESLint, TypeScript, and GitHub Actions
 
-See [the architecture brief](docs/ARCHITECTURE.md) for boundaries, data flow, consolidation decisions, and the backend-ready AI plan.
+See [the architecture brief](docs/ARCHITECTURE.md) and [backend architecture](docs/BACKEND_ARCHITECTURE.md) for boundaries, contracts, failure behavior, and deployment decisions.
 
 ## Run locally
 
@@ -38,6 +39,16 @@ npm run start
 
 Open Android, iOS, or web from the Expo terminal. The first screen can generate a goal-specific local plan or open the ready-made Campfire Guitar demo.
 
+Run the API separately:
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_URL=http://localhost:3001` to use the API. Without it, the app stays in deterministic offline-demo mode.
+
 ## Validate
 
 ```bash
@@ -45,13 +56,17 @@ npm run lint
 npm run typecheck
 npm test
 npm run export:web
+npm run backend:typecheck
+npm run backend:test
 ```
 
-## Dummy data and future backend
+## Data and backend
 
-`src/data/guitar-plan.json` is versioned, deterministic demo data. Screens depend on `PlanRepository` and `AIPlanProvider`, so the backend phase can replace the local implementations without rewriting UI code. The planned Node/Fastify API keeps the model key server-side and validates generated plans before returning them.
+`src/data/guitar-plan.json` is the frontend's versioned demo plan. `backend/src/data/hobby-blueprints.json` provides deterministic server data for guitar, chess, photography, drawing, and custom hobbies. Screens still depend on `AIPlanProvider`; configuring the API URL swaps in `HttpAIProvider` without screen rewrites and falls back locally if the network or model is unavailable.
 
-The initial researched provider candidate is Gemini 2.5 Flash-Lite because its official pricing page currently lists free-tier input/output and describes it as suitable for cost-efficient, at-scale usage. Quotas must be checked again before submission.
+The backend defaults to mock mode. In Gemini mode it uses Gemini 3.5 Flash-Lite with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates the result before returning it. Google currently lists free-tier input/output for this stable model; project-specific quotas must still be checked before submission.
+
+The API can be hosted on Vercel Hobby for this non-commercial assignment. Import the repository, choose `backend` as the project Root Directory, and set the environment variables described in `backend/README.md`.
 
 ## AI-assisted engineering record
 
