@@ -1,1 +1,0 @@
-module.exports = { content: ['./app/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'], theme: { extend: { colors: { pilot: {50:'#f5f3ff',100:'#ede9fe',500:'#7c3aed',600:'#6d28d9',950:'#120a3d'} } } }, plugins: [] };

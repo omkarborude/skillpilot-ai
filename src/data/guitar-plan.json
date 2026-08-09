@@ -1,0 +1,150 @@
+{
+  "id": "campfire-guitar",
+  "hobbyId": "guitar",
+  "title": "Campfire Guitar",
+  "outcome": "Play one complete song confidently for friends.",
+  "totalWeeks": 4,
+  "techniques": [
+    {
+      "id": "guitar-posture",
+      "order": 1,
+      "title": "Comfortable posture and clean sound",
+      "shortTitle": "Getting comfortable",
+      "description": "Hold the guitar without tension and make every string ring clearly.",
+      "whyItMatters": "Comfort prevents fatigue and gives every later technique a clean foundation.",
+      "minutes": 12,
+      "status": "completed",
+      "resources": [
+        { "id": "posture-video", "title": "Posture from three useful angles", "type": "video", "durationLabel": "4 min", "description": "Visual placement for your chair, shoulders, thumb, and wrist." },
+        { "id": "posture-check", "title": "One-minute comfort check", "type": "practice", "durationLabel": "1 min", "description": "A quick setup checklist before every session." }
+      ],
+      "practiceTasks": [
+        { "id": "sit", "label": "Sit tall with relaxed shoulders" },
+        { "id": "thumb", "label": "Keep the fretting thumb relaxed" },
+        { "id": "ring", "label": "Play all six strings without buzzing" }
+      ],
+      "keyPoints": ["Relaxed beats rigid", "Keep the wrist neutral", "Reset if a string buzzes"]
+    },
+    {
+      "id": "first-g-chord",
+      "order": 2,
+      "title": "Build a reliable G chord",
+      "shortTitle": "Your first chord",
+      "description": "Place the G chord accurately, then rebuild it from a relaxed hand.",
+      "whyItMatters": "G appears in thousands of beginner-friendly songs and builds finger independence.",
+      "minutes": 15,
+      "status": "completed",
+      "resources": [
+        { "id": "g-chord-video", "title": "Finger placement close-up", "type": "video", "durationLabel": "5 min", "description": "See where each fingertip lands and how to avoid muted strings." },
+        { "id": "g-chord-drill", "title": "Place, check, release", "type": "practice", "durationLabel": "5 min", "description": "Ten calm repetitions with a sound check." }
+      ],
+      "practiceTasks": [
+        { "id": "shape", "label": "Build the chord without squeezing" },
+        { "id": "strings", "label": "Check each string separately" },
+        { "id": "repeat", "label": "Rebuild the shape ten times" }
+      ],
+      "keyPoints": ["Use fingertips", "Fret close to the wire", "Accuracy before speed"]
+    },
+    {
+      "id": "g-c-chord-pair",
+      "order": 3,
+      "title": "Connect G and C chords",
+      "shortTitle": "Your first chord pair",
+      "description": "Learn a practical C shape and move between two musical sounds.",
+      "whyItMatters": "Two connected chords turn isolated shapes into actual music.",
+      "minutes": 16,
+      "status": "completed",
+      "resources": [
+        { "id": "gc-video", "title": "G to C without hand tension", "type": "video", "durationLabel": "6 min", "description": "A slow visual breakdown of the shared movement." },
+        { "id": "gc-practice", "title": "Two-chord loop", "type": "practice", "durationLabel": "6 min", "description": "Four beats on G, then four beats on C." }
+      ],
+      "practiceTasks": [
+        { "id": "c-shape", "label": "Build a clean C chord" },
+        { "id": "anchors", "label": "Notice the smallest finger movement" },
+        { "id": "loop", "label": "Complete eight slow switches" }
+      ],
+      "keyPoints": ["Lead with the next shape", "Move fingers together", "Pause and reset when needed"]
+    },
+    {
+      "id": "chord-transitions",
+      "order": 4,
+      "title": "Smooth chord transitions",
+      "shortTitle": "Chord transitions",
+      "description": "Switch between G, C, and D without breaking the rhythm.",
+      "whyItMatters": "Smooth transitions are the bridge between knowing chords and playing a song.",
+      "minutes": 20,
+      "status": "in_progress",
+      "resources": [
+        { "id": "transition-video", "title": "The one-minute transition method", "type": "video", "durationLabel": "5 min", "description": "Watch the full hand movement slowly before adding tempo." },
+        { "id": "transition-read", "title": "Why anchor fingers work", "type": "article", "durationLabel": "3 min", "description": "A concise explanation with two useful chord examples." },
+        { "id": "transition-practice", "title": "G–C–D transition ladder", "type": "practice", "durationLabel": "10 min", "description": "Build from clean switches to a steady 60 BPM loop." }
+      ],
+      "practiceTasks": [
+        { "id": "slow", "label": "Make ten clean G–C switches" },
+        { "id": "triangle", "label": "Loop G–C–D without stopping" },
+        { "id": "tempo", "label": "Hold the loop at 60 BPM" }
+      ],
+      "keyPoints": ["Look at the next chord early", "Move all fingers as one shape", "Keep strumming through small mistakes"]
+    },
+    {
+      "id": "down-up-strumming",
+      "order": 5,
+      "title": "Natural down-up strumming",
+      "shortTitle": "Strumming basics",
+      "description": "Use a relaxed wrist to create an even, repeatable groove.",
+      "whyItMatters": "A steady strumming motion makes simple chords sound musical.",
+      "minutes": 18,
+      "status": "locked",
+      "resources": [
+        { "id": "strum-video", "title": "Relaxed wrist technique", "type": "video", "durationLabel": "5 min", "description": "Visual wrist and pick movement from the player’s view." },
+        { "id": "strum-audio", "title": "Match this even pulse", "type": "audio", "durationLabel": "2 min", "description": "Hear and imitate a steady down-up groove." }
+      ],
+      "practiceTasks": [
+        { "id": "mute", "label": "Strum muted strings evenly" },
+        { "id": "downup", "label": "Alternate down and up strokes" },
+        { "id": "chords", "label": "Add the G–C–D loop" }
+      ],
+      "keyPoints": ["Motion comes from the wrist", "Keep the pick light", "The hand never stops moving"]
+    },
+    {
+      "id": "rhythm-pattern",
+      "order": 6,
+      "title": "One versatile rhythm pattern",
+      "shortTitle": "Rhythm pattern",
+      "description": "Turn the continuous strum into a recognizable song groove.",
+      "whyItMatters": "One flexible rhythm can unlock dozens of beginner songs.",
+      "minutes": 18,
+      "status": "locked",
+      "resources": [
+        { "id": "rhythm-audio", "title": "Hear the full groove", "type": "audio", "durationLabel": "2 min", "description": "Listen at slow and normal tempo before copying it." },
+        { "id": "rhythm-read", "title": "Count: 1 and 2 and 3 and 4", "type": "article", "durationLabel": "4 min", "description": "A visual count map for down and up strokes." }
+      ],
+      "practiceTasks": [
+        { "id": "count", "label": "Speak the eight-count aloud" },
+        { "id": "air", "label": "Air-strum the pattern" },
+        { "id": "groove", "label": "Play the pattern on one chord" }
+      ],
+      "keyPoints": ["Feel the pulse first", "Missed strings are intentional", "Count while practicing"]
+    },
+    {
+      "id": "first-song",
+      "order": 7,
+      "title": "Play your first complete song",
+      "shortTitle": "First song",
+      "description": "Combine your chord loop and rhythm into a full performance.",
+      "whyItMatters": "A complete song is the motivating proof that your focused practice worked.",
+      "minutes": 25,
+      "status": "locked",
+      "resources": [
+        { "id": "song-video", "title": "Full play-along at two speeds", "type": "video", "durationLabel": "8 min", "description": "Follow chord cues at practice speed, then normal speed." },
+        { "id": "song-practice", "title": "Verse-to-chorus rehearsal", "type": "practice", "durationLabel": "12 min", "description": "Practice the hard switch, then join the complete song." }
+      ],
+      "practiceTasks": [
+        { "id": "section", "label": "Loop the hardest section" },
+        { "id": "slow-song", "label": "Finish once at practice speed" },
+        { "id": "perform", "label": "Record one complete take" }
+      ],
+      "keyPoints": ["Keep going after mistakes", "Simplify before stopping", "Finish the whole song"]
+    }
+  ]
+}

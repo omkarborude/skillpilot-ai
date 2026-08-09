@@ -1,1 +1,18 @@
-{"extends":"expo/tsconfig.base","compilerOptions":{"strict":true,"baseUrl":".","paths":{"@/*":["src/*"]},"jsx":"react-native"},"include":["src/**/*.ts","src/**/*.tsx","app/**/*.ts","app/**/*.tsx","nativewind-env.d.ts"]}
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "jest.setup.ts"
+  ]
+}

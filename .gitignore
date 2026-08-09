@@ -5,3 +5,5 @@ build/
 coverage/
 *.log
 .env*
+!.env.example
+expo-env.d.ts

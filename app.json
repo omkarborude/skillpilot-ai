@@ -1,1 +1,37 @@
-{"expo":{"name":"SkillPilot AI","slug":"skillpilot-ai","scheme":"skillpilot","version":"1.0.0","orientation":"portrait","userInterfaceStyle":"automatic","assetBundlePatterns":["**/*"],"plugins":["expo-router","expo-secure-store","expo-notifications","react-native-mmkv"],"ios":{"supportsTablet":true,"bundleIdentifier":"ai.skillpilot.app"},"android":{"package":"ai.skillpilot.app"},"experiments":{"typedRoutes":true}}}
+{
+  "expo": {
+    "name": "SkillPilot AI",
+    "slug": "skillpilot-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "skillpilot",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ai.skillpilot.app"
+    },
+    "android": {
+      "package": "ai.skillpilot.app",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": true
+    },
+    "web": {
+      "output": "static",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#17103D",
+          "imageWidth": 96
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
