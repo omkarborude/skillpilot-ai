@@ -1,0 +1,43 @@
+import type { CoachRequest, LearnerGoal, ReplaceTechniqueRequest } from './contracts.js';
+
+const mediaRules = `
+Choose media by how the technique is actually learned:
+- video for visible movement, posture, setup, or visual examples
+- audio only when listening, rhythm, tone, or pronunciation is essential
+- article for concepts, checklists, notation, and decision processes
+- practice for immediate application; every technique needs a practice resource
+Never recommend audio-only learning for chess. Do not invent URLs.`;
+
+export function buildPlanPrompt(goal: LearnerGoal): string {
+  return `You are a practical hobby curriculum designer. Build a focused learning plan, not a complete course.
+
+Learner:
+- hobby: ${goal.customHobby ?? goal.hobbyName}
+- desired outcome: ${goal.reason}
+- current level: ${goal.level}
+- available time: ${goal.dailyMinutes} minutes per day
+
+Return 5 to 8 high-leverage techniques in dependency order. Each step must create visible progress toward one realistic outcome. Avoid trivia, exhaustive theory, subscriptions, social features, and generic motivation.
+${mediaRules}
+
+Keep every description specific, concise, and safe. Keep each technique within the learner's daily time.`;
+}
+
+export function buildReplacementPrompt(input: ReplaceTechniqueRequest): string {
+  return `Replace one learning technique while preserving its outcome.
+
+Mode: ${input.mode}
+Hobby: ${input.goal?.customHobby ?? input.goal?.hobbyName ?? 'not specified'}
+Original technique: ${JSON.stringify(input.technique)}
+
+Return one replacement technique only. It must be meaningfully ${input.mode}, practical, and no longer than ${input.technique.minutes} minutes.
+${mediaRules}`;
+}
+
+export function buildCoachPrompt(input: CoachRequest): string {
+  return `Learner question: ${input.prompt}
+Current hobby: ${input.goal?.customHobby ?? input.goal?.hobbyName ?? 'not specified'}
+Current technique: ${input.technique ? JSON.stringify(input.technique) : 'not specified'}
+
+Answer as a concise practice coach. Give one concrete cue and one immediate next action. Do not give a long lecture.`;
+}
