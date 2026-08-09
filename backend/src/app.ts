@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type Express } from 'express';
 import type { AppConfig } from './config.js';
 import {
   CoachRequestSchema,
@@ -24,8 +24,8 @@ function responseMeta<T>(result: ServiceResult<T>, requestId: string): ApiMeta {
   };
 }
 
-export function createApp({ config, learningService, logRequests = true }: AppDependencies) {
-  const app = express();
+export function configureApp(app: Express, dependencies: AppDependencies) {
+  const { config, learningService, logRequests = true } = dependencies;
   app.disable('x-powered-by');
   app.use(requestContext(logRequests));
   app.use(cors(config.allowedOrigins));
@@ -84,4 +84,8 @@ export function createApp({ config, learningService, logRequests = true }: AppDe
   app.use(notFound);
   app.use(errorHandler);
   return app;
+}
+
+export function createApp(dependencies: AppDependencies) {
+  return configureApp(express(), dependencies);
 }
