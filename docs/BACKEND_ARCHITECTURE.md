@@ -28,7 +28,7 @@ backend/
     app.ts            Express composition and routes
     contracts.ts      Zod request/domain schemas
     index.ts          Vercel entry point
-    local.ts          local Node listener only
+    server.ts         local and Vercel Node server entry
   .env.example
   package.json
   tsconfig.json
