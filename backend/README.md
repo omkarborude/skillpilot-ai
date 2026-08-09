@@ -27,7 +27,7 @@ Never use `EXPO_PUBLIC_` for the Gemini key; Expo public variables are embedded 
 ```bash
 npm run typecheck
 npm test
-npm run build
+npm run compile
 ```
 
 ## Vercel
