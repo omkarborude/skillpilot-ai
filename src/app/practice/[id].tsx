@@ -29,6 +29,7 @@ export default function PracticeScreen() {
   const [running, setRunning] = useState(false);
   const [checkedTasks, setCheckedTasks] = useState<string[]>([]);
   const [completeVisible, setCompleteVisible] = useState(false);
+  const [xpEarned, setXpEarned] = useState(false);
 
   const isRunning = running && secondsLeft > 0;
 
@@ -50,6 +51,8 @@ export default function PracticeScreen() {
 
   const progress = Math.round(((totalSeconds - secondsLeft) / totalSeconds) * 100);
   const allTasksChecked = checkedTasks.length === technique.practiceTasks.length;
+  const practicedMinutes = Math.floor((totalSeconds - secondsLeft) / 60);
+  const canComplete = allTasksChecked && practicedMinutes >= 1;
 
   const toggleTask = (taskId: string) => {
     setCheckedTasks((current) =>
@@ -59,8 +62,9 @@ export default function PracticeScreen() {
 
   const completePractice = () => {
     setRunning(false);
+    setXpEarned(technique.status !== 'completed');
     setStatus(technique.id, 'completed');
-    recordPractice(Math.max(1, Math.ceil((totalSeconds - secondsLeft) / 60)), technique.id);
+    recordPractice(practicedMinutes, technique.id);
     setCompleteVisible(true);
   };
 
@@ -148,9 +152,9 @@ export default function PracticeScreen() {
       </Card>
 
       <Button
-        label={allTasksChecked ? 'Complete technique' : 'Check every practice cue'}
-        icon={allTasksChecked ? 'checkmark-circle' : undefined}
-        disabled={!allTasksChecked}
+        label={!allTasksChecked ? 'Check every practice cue' : practicedMinutes < 1 ? 'Practice for at least one minute' : 'Complete technique'}
+        icon={canComplete ? 'checkmark-circle' : undefined}
+        disabled={!canComplete}
         onPress={completePractice}
       />
 
@@ -166,7 +170,7 @@ export default function PracticeScreen() {
             <Text style={styles.completionLabel}>journey resolved</Text>
           </View>
           <View style={styles.completionCopy}>
-            <Text style={styles.completionTitle}>+25 XP earned</Text>
+            <Text style={styles.completionTitle}>{xpEarned ? '+25 XP earned' : 'Practice recorded'}</Text>
             <Text style={styles.completionText}>Progress is saved locally and will still be here when the app reopens.</Text>
           </View>
         </View>
