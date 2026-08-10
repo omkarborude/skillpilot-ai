@@ -58,7 +58,7 @@ export default function ProgressScreen() {
     <Page tabScreen contentStyle={styles.page}>
       <SectionHeading
         eyebrow="Weekly insight"
-        title="Progress you can explain"
+        title="Your progress"
         caption="Completion, deliberate skips, and practice consistency are shown separately."
       />
 
@@ -73,11 +73,11 @@ export default function ProgressScreen() {
         <View style={styles.heroProgressRow}>
           <View style={styles.progressCircle}>
             <Text style={styles.progressValue}>{journeyProgress}%</Text>
-            <Text style={styles.progressLabel}>resolved</Text>
+            <Text style={styles.progressLabel}>progress</Text>
           </View>
           <View style={styles.heroStats}>
             <Text style={styles.heroStatValue}>{counts.completed} / {counts.total}</Text>
-            <Text style={styles.heroStatLabel}>techniques mastered</Text>
+            <Text style={styles.heroStatLabel}>techniques completed</Text>
             <ProgressBar value={masteryProgress} dark />
           </View>
         </View>

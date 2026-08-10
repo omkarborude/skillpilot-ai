@@ -12,6 +12,7 @@ import { aiProvider } from '@/services/aiProvider';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { LearningResource, ReplacementMode } from '@/types/learning';
+import { resolveResourceDestination } from '@/utils/resources';
 
 const replacementOptions: {
   id: ReplacementMode;
@@ -78,19 +79,20 @@ export default function TechniqueDetailScreen() {
 
   const openResource = async (resource: LearningResource) => {
     setResourceError('');
+    const destination = resolveResourceDestination(resource);
 
-    if (resource.type === 'practice') {
+    if (destination.kind === 'practice') {
       router.push({ pathname: '/practice/[id]', params: { id: technique.id } });
       return;
     }
 
-    const searchTerms = `${goal?.hobbyName ?? plan?.title ?? ''} ${resource.title}`.trim();
-    const searchUrl = resource.type === 'video' || resource.type === 'audio'
-      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(searchTerms)}`
-      : `https://www.google.com/search?q=${encodeURIComponent(searchTerms)}`;
+    if (destination.kind === 'unavailable') {
+      setResourceError('No search query is available for this recommendation. Try replacing the technique.');
+      return;
+    }
 
     try {
-      await Linking.openURL(resource.url ?? searchUrl);
+      await Linking.openURL(destination.url);
     } catch {
       setResourceError('This resource could not be opened. Check your connection and try again.');
     }
@@ -115,19 +117,24 @@ export default function TechniqueDetailScreen() {
           <View style={styles.featuredDecorOne} />
           <View style={styles.featuredDecorTwo} />
           <View style={styles.featuredTop}>
-            <Pill tone="green">PRIMARY {featuredResource.type.toUpperCase()}</Pill>
-            <Text style={styles.featuredDuration}>{featuredResource.durationLabel}</Text>
+            <Pill tone="green">
+              {featuredResource.type === 'practice'
+                ? 'GUIDED PRACTICE'
+                : `SUGGESTED ${featuredResource.type.toUpperCase()} SEARCH`}
+            </Pill>
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Open ${featuredResource.title}`}
+            accessibilityLabel={featuredResource.type === 'practice' ? 'Open guided practice' : 'Open suggested search'}
             onPress={() => void openResource(featuredResource)}
             style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}
           >
-            <Ionicons name={featuredResource.type === 'audio' ? 'headset' : 'play'} size={27} color={colors.white} />
+            <Ionicons name={featuredResource.type === 'practice' ? 'play' : 'search'} size={27} color={colors.white} />
           </Pressable>
           <View>
-            <Text style={styles.featuredTitle}>{featuredResource.title}</Text>
+            <Text style={styles.featuredTitle}>
+              {featuredResource.type === 'practice' ? 'Practice this technique' : featuredResource.searchQuery}
+            </Text>
             <Text style={styles.featuredCaption}>{featuredResource.description}</Text>
           </View>
         </LinearGradient>
@@ -181,7 +188,7 @@ export default function TechniqueDetailScreen() {
       {technique.status !== 'locked' && technique.status !== 'skipped' ? (
         <View style={styles.primaryActions}>
           <Button
-            label={technique.status === 'completed' ? 'Practice again' : 'Start focused practice'}
+            label={technique.status === 'completed' ? 'Practice again' : 'Start practice'}
             icon="play"
             onPress={() => router.push({ pathname: '/practice/[id]', params: { id: technique.id } })}
           />

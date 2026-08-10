@@ -25,7 +25,7 @@ export default function OtpScreen() {
 
     const normalizedOtp = otp.replace(/\D/g, '');
     if (!normalizedOtp) {
-      setError('Enter your verification code to continue.');
+      setError('Enter a device access code to continue.');
       return;
     }
 
@@ -44,7 +44,7 @@ export default function OtpScreen() {
     <Page keyboardAware contentStyle={styles.page}>
       <View style={styles.mascotWrap}>
         <RobotMascot size="large" />
-        <Pill>DEVICE VERIFICATION</Pill>
+        <Pill>DEVICE ACCESS</Pill>
       </View>
 
       <Card style={styles.card}>
@@ -52,13 +52,13 @@ export default function OtpScreen() {
           <Ionicons name="shield-checkmark-outline" size={28} color={colors.primary} />
         </View>
         <View style={styles.copy}>
-          <Text style={styles.title}>Enter the OTP</Text>
+          <Text style={styles.title}>Enter your access code</Text>
           <Text style={styles.caption}>
-            Enter your verification code for {phoneNumber ? `••••${phoneNumber.slice(-4)}` : 'this number'}.
+            Enter a 4–6 digit code to continue as {phoneNumber ? `••••${phoneNumber.slice(-4)}` : 'this learner'}. No SMS is sent.
           </Text>
         </View>
         <TextField
-          label="One-time password"
+          label="Device access code"
           value={otp}
           onChangeText={setOtp}
           placeholder="1234"

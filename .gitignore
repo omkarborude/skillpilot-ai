@@ -4,6 +4,7 @@ dist/
 build/
 coverage/
 *.log
+*.apk
 .env*
 !.env.example
 expo-env.d.ts

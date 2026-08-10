@@ -1,6 +1,6 @@
 # SkillPilot
 
-SkillPilot turns one hobby goal into a focused 5–8 technique learning journey. It recommends the right medium for each technique, gives the learner one clear next action, supports complete, skip, and plan-adaptation decisions, and persists progress locally.
+SkillPilot turns one hobby goal into a 5–8 technique learning journey. It recommends a learning format for each technique, gives the learner one clear next action, supports complete, skip, and plan-adaptation decisions, and persists progress locally.
 
 ## Product scope
 
@@ -23,7 +23,7 @@ Today’s plan, resource preview, lesson replacement, achievements, and confirma
 - Expo SDK 57, React Native 0.86, React 19.2, strict TypeScript
 - Expo Router for Android, iOS, and responsive web
 - Zustand with IndexedDB on web and AsyncStorage on native for persisted journey state
-- An HTTP provider backed by Gemini for plans, adaptations, and Coach responses
+- An HTTP provider backed by Gemini for plans, adaptations, and coach responses
 - Express 5 + Zod backend with validated Gemini structured output
 - React Native StyleSheet and design tokens; no heavyweight chart/UI framework
 - Jest, Node test runner, React Native Testing Library, ESLint, TypeScript, and GitHub Actions
@@ -62,13 +62,17 @@ npm run backend:test
 
 ## Data and backend
 
-Screens depend on `AIPlanProvider`, implemented by `HttpAIProvider`. The backend uses the configured Gemini model with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates every generated result before returning it. Provider failures remain visible and retryable instead of being replaced with dummy content.
+Screens depend on `AIPlanProvider`, implemented by `HttpAIProvider`. The backend uses the configured Gemini model with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates generated results with Zod before returning them. The client also validates API envelopes with Zod. Provider failures remain visible and retryable instead of being replaced with fabricated content.
 
-The API can be hosted on Vercel Hobby for this non-commercial assignment. Import the repository, choose `backend` as the project Root Directory, and set the environment variables described in `backend/README.md`.
+The deployed client is configured to use `https://skillpilot-api.onrender.com`. Render setup and environment variables are described in `backend/README.md`.
+
+External learning items are search recommendations, not a curated resource catalog. The backend returns a validated search query and the client opens a Zod-validated YouTube or Google search URL. SkillPilot does not claim a source title, duration, or direct URL that it has not verified. Google Search grounding was reviewed, but grounded source attribution is not enabled in the current provider path and has not been live-verified for this submission.
 
 ## AI-assisted engineering record
 
-AI was used assistively for product ideation, official documentation research, architecture alternatives, and test-case review. The important decisions are explicit in `docs/ARCHITECTURE.md`, business logic is covered by tests, and every dependency has a concrete use. Before submitting, the candidate should complete the self-review checklist below and be able to explain each boundary and tradeoff.
+I used AI for product ideation, official documentation research, and review of documentation, code, and test cases. I owned the product scope, architecture decisions, implementation review, and testing. I reviewed generated suggestions before accepting them and kept the final behavior within the boundaries described in this repository.
+
+Before submission, I use this checklist:
 
 - Run and inspect every primary flow on Android and responsive web.
 - Review the complete PR diff and remove any code that cannot be explained.

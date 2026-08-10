@@ -36,7 +36,7 @@ export default function ProfileScreen() {
 
   const shareProgress = async () => {
     await Share.share({
-      message: `I’m ${progress}% through my ${plan.title} journey: ${counts.completed} focused techniques completed with SkillPilot.`,
+      message: `I’m ${progress}% through my ${plan.title} journey: ${counts.completed} techniques completed with SkillPilot.`,
     });
   };
 
@@ -58,7 +58,7 @@ export default function ProfileScreen() {
         <View style={styles.avatar}><Text style={styles.avatarText}>SP</Text></View>
         <View style={styles.identity}>
           <Text style={styles.name}>{phoneNumber ? `Learner ••••${phoneNumber.slice(-4)}` : 'SkillPilot learner'}</Text>
-          <Text style={styles.role}>Focused learner • {goal.hobbyName}</Text>
+          <Text style={styles.role}>Learning {goal.hobbyName}</Text>
           <View style={styles.badges}>
             <Pill tone="amber">🔥 {streakDays} day streak</Pill>
             <Pill>⭐ {xp} XP</Pill>
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
       <Card style={styles.productNote}>
         <Ionicons name="information-circle" size={22} color={colors.primary} />
         <View style={styles.productNoteCopy}>
-          <Text style={styles.productNoteTitle}>A focused learning workspace</Text>
+          <Text style={styles.productNoteTitle}>Your learning workspace</Text>
           <Text style={styles.productNoteText}>Continue, adapt, review, share progress, or start a different goal whenever your priorities change.</Text>
         </View>
       </Card>

@@ -48,7 +48,7 @@ export default function DashboardScreen() {
         <View>
           <Text style={styles.eyebrow}>{formattedDate}</Text>
           <Text style={styles.greeting}>{greeting} 👋</Text>
-          <Text style={styles.subheading}>Ready to move one useful step forward?</Text>
+          <Text style={styles.subheading}>Ready to make progress today?</Text>
         </View>
         <View style={styles.avatar}><Text style={styles.avatarText}>SP</Text></View>
       </View>
@@ -60,7 +60,7 @@ export default function DashboardScreen() {
         </View>
         <Text style={styles.missionTitle}>{activeTechnique?.shortTitle ?? 'Journey complete'}</Text>
         <Text style={styles.missionCaption}>
-          {activeTechnique?.whyItMatters ?? 'You completed every focused technique in this plan.'}
+          {activeTechnique?.whyItMatters ?? 'You completed every technique in this plan.'}
         </Text>
         <View style={styles.missionMeta}>
           <View style={styles.metaPill}>
@@ -101,8 +101,8 @@ export default function DashboardScreen() {
       </Card>
 
       <SectionHeading
-        title="Today’s focused plan"
-        caption="The right medium for each part—not a random playlist."
+        title="Today’s plan"
+        caption="Recommendations for your current technique."
       />
       <Card style={styles.planCard}>
         {todayResources.map((resource, index) => (
@@ -111,10 +111,12 @@ export default function DashboardScreen() {
               <Ionicons name={taskIcon[resource.type]} size={21} color={colors.primary} />
             </View>
             <View style={styles.taskCopy}>
-              <Text style={styles.taskType}>{resource.type}</Text>
-              <Text style={styles.taskTitle}>{resource.title}</Text>
+              <Text style={styles.taskType}>{resource.type === 'practice' ? 'practice' : `${resource.type} search`}</Text>
+              <Text style={styles.taskTitle}>
+                {resource.type === 'practice' ? 'Guided practice' : resource.searchQuery}
+              </Text>
             </View>
-            <Text style={styles.taskDuration}>{resource.durationLabel}</Text>
+            <Text style={styles.taskDuration}>{resource.type === 'practice' ? `${activeTechnique?.minutes ?? 0} min` : 'Search'}</Text>
           </View>
         ))}
         {activeTechnique ? (
@@ -149,7 +151,7 @@ export default function DashboardScreen() {
           <Text style={styles.insightEyebrow}>NOVA’S NOTE</Text>
           <Text style={styles.insightText}>
             {latestSession
-              ? `Your latest session added ${latestSession.minutes} focused minute${latestSession.minutes === 1 ? '' : 's'}. Continue when you are ready.`
+              ? `Your latest session added ${latestSession.minutes} minute${latestSession.minutes === 1 ? '' : 's'} of practice. Continue when you are ready.`
               : 'Complete your first practice session to start building a personal activity history.'}
           </Text>
         </View>

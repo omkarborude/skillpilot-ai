@@ -2,16 +2,16 @@
 
 ## Product boundary
 
-SkillPilot answers one question: **“What should I learn next to reach my hobby goal?”** It creates a focused 5–8 technique plan, mixes media with practice, lets the learner complete, skip, or replace a technique, and makes overall progress obvious.
+SkillPilot answers one question: **“What should I learn next to reach my hobby goal?”** It creates a 5–8 technique plan, mixes search recommendations with guided practice, lets the learner complete, skip, or replace a technique, and shows overall progress.
 
 The original design board is consolidated into exactly nine primary screens:
 
 1. **Create Goal** — hobby, outcome, level, and daily time in one guided form.
-2. **AI Plan Generation** — transparent generation steps plus a useful retry state.
+2. **AI Plan Generation** — request status plus a retry state.
 3. **Dashboard** — next best action, today’s mission, streak, and journey progress.
 4. **Learning Plan** — ordered 5–8 technique roadmap.
-5. **Technique Detail** — overview plus context-appropriate video, audio, or reading resources.
-6. **Practice** — focused timer, checklist, reflection, and completion.
+5. **Technique Detail** — overview plus explicit video, audio, or reading search recommendations.
+6. **Practice** — timer, checklist, reflection, and completion.
 7. **AI Coach** — contextual explain/simplify/replace assistance, not a generic chatbot.
 8. **Progress** — weekly insight, completed/skipped techniques, and achievements.
 9. **Profile** — goal summary and reset/export actions only.
@@ -22,11 +22,10 @@ Splash is native launch branding. Today’s plan, lesson replacement, notes, ach
 
 ```mermaid
 flowchart TD
-    R["Expo Router screens"] --> F["Feature UI and hooks"]
-    F --> S["Journey store"]
-    F --> P["Plan and coach providers"]
+    R["Expo Router screens"] --> S["Journey store"]
+    R --> P["Plan and coach provider interface"]
     P --> H["HTTP provider"]
-    H --> B["Express API on Vercel"]
+    H --> B["Express API on Render"]
     B --> G["Gemini provider"]
     S --> A["IndexedDB / AsyncStorage adapter"]
 ```
@@ -40,8 +39,7 @@ flowchart TD
 
 ```text
 src/
-  app/                 routes and layouts only
-  features/            onboarding, plan, practice, coach, progress, profile
+  app/                 routes, screens, and layouts
   components/          reusable product and UI primitives
   services/             HTTP provider and platform storage adapter
   store/                persisted journey state and selectors
@@ -52,18 +50,20 @@ src/
 
 ## Backend AI plan
 
-The frontend uses HTTP when `EXPO_PUBLIC_API_URL` is configured. A separate `backend/` project contains an Express 5/TypeScript API designed for serverless deployment. It provides plan generation, contextual coaching, and technique replacement. The API key remains server-side, request and generated-output schemas are validated with Zod, and provider failures return traceable errors for retry instead of fabricated content.
+The frontend uses HTTP when `EXPO_PUBLIC_API_URL` is configured. A separate `backend/` project contains an Express 5/TypeScript API. It provides plan generation, contextual coaching, and technique replacement. The API key remains server-side, request and generated-output schemas are validated with Zod, and provider failures return traceable errors for retry instead of fabricated content.
 
-The selected model is **Gemini 3.5 Flash-Lite**, a stable GA model that Google currently describes as its most cost-efficient 3.5 model and lists with free-tier input/output. The model is configurable by environment variable, and quotas are rechecked before submission because free limits can change.
+The model is configurable with `GEMINI_MODEL`; the repository default is `gemini-3.5-flash-lite`. Model availability, pricing, and quotas are deployment concerns and are not guaranteed by this repository.
+
+External resource records contain a media type, a search query, and a description of what to look for. They do not contain model-invented URLs, source titles, or durations. The client constructs and validates an HTTPS search URL. The current Gemini Interactions call does not enable Google Search grounding, so SkillPilot does not describe these items as verified or curated sources.
 
 See [the backend architecture](BACKEND_ARCHITECTURE.md) for API contracts, deployment, security, and failure behavior.
 
 ## Quality gates
 
-- Unit tests: progress calculation, technique transitions, validation, and repository mapping.
-- Component tests: Create Goal, complete/skip/replace, persistence recovery, and empty/error states.
-- E2E smoke flow: create goal → generate plan → practice → complete → verify progress.
-- CI: format, ESLint, TypeScript, Jest, and Expo web export; Android preview/APK after the UI stabilizes.
+- Frontend tests cover progress calculations, complete/skip/unlock transitions, journey persistence, API contract validation, resource mapping, and shared UI states.
+- Backend tests cover HTTP validation, provider failure behavior, schema sanitization, normalization, replacement, and resource contracts.
+- GitHub Actions runs ESLint, TypeScript, Jest, the backend test suite, and an Expo web export.
+- There is no automated E2E suite, formatting gate, or Android build job.
 
 ## Research references
 
@@ -73,3 +73,4 @@ See [the backend architecture](BACKEND_ARCHITECTURE.md) for API contracts, deplo
 - [Expo unit testing with Jest](https://docs.expo.dev/develop/unit-testing/)
 - [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing)
 - [Gemini API rate limits](https://ai.google.dev/gemini-api/docs/rate-limits)
+- [Gemini grounding with Google Search](https://ai.google.dev/gemini-api/docs/google-search)

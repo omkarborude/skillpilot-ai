@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const HobbyIdSchema = z.enum(['guitar', 'chess', 'photography', 'drawing', 'custom']);
 export const SkillLevelSchema = z.enum(['beginner', 'some_experience', 'intermediate']);
 export const GoalReasonSchema = z.enum(['fun', 'confidence', 'perform', 'create']);
-export const ResourceTypeSchema = z.enum(['video', 'audio', 'article', 'practice']);
+export const ExternalResourceTypeSchema = z.enum(['video', 'audio', 'article']);
 export const TechniqueStatusSchema = z.enum(['completed', 'in_progress', 'locked', 'skipped']);
 export const ReplacementModeSchema = z.enum(['simpler', 'shorter', 'different']);
 
@@ -26,14 +26,21 @@ export const LearnerGoalSchema = z
     }
   });
 
-export const LearningResourceSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().trim().min(2).max(100),
-  type: ResourceTypeSchema,
-  durationLabel: z.string().trim().min(1).max(24),
-  description: z.string().trim().min(8).max(240),
-  url: z.url().optional(),
-});
+const ResourceDescriptionSchema = z.string().trim().min(8).max(240);
+
+export const LearningResourceSchema = z.discriminatedUnion('type', [
+  z.object({
+    id: z.string().min(1),
+    type: ExternalResourceTypeSchema,
+    searchQuery: z.string().trim().min(3).max(160),
+    description: ResourceDescriptionSchema,
+  }).strict(),
+  z.object({
+    id: z.string().min(1),
+    type: z.literal('practice'),
+    description: ResourceDescriptionSchema,
+  }).strict(),
+]);
 
 export const PracticeTaskSchema = z.object({
   id: z.string().min(1),
@@ -64,9 +71,25 @@ export const LearningPlanSchema = z.object({
   techniques: z.array(TechniqueSchema).min(5).max(8),
 });
 
-const DraftResourceSchema = LearningResourceSchema.omit({
-  id: true,
-  url: true,
+const DraftResourceSchema = z.object({
+  type: z.enum(['video', 'audio', 'article', 'practice']),
+  searchQuery: z.string().trim().min(3).max(160).optional(),
+  description: ResourceDescriptionSchema,
+}).strict().superRefine((resource, context) => {
+  if (resource.type !== 'practice' && !resource.searchQuery) {
+    context.addIssue({
+      code: 'custom',
+      path: ['searchQuery'],
+      message: 'searchQuery is required for external resource recommendations',
+    });
+  }
+  if (resource.type === 'practice' && resource.searchQuery) {
+    context.addIssue({
+      code: 'custom',
+      path: ['searchQuery'],
+      message: 'searchQuery is not used for guided practice',
+    });
+  }
 });
 const DraftTechniqueSchema = TechniqueSchema.omit({
   id: true,

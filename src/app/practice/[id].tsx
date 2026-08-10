@@ -158,12 +158,12 @@ export default function PracticeScreen() {
         visible={completeVisible}
         onClose={() => setCompleteVisible(false)}
         title="Technique complete! 🎉"
-        caption={`You resolved ${technique.shortTitle} and unlocked the next useful step.`}
+        caption={`You completed ${technique.shortTitle} and unlocked the next technique.`}
       >
         <View style={styles.completionContent}>
           <View style={styles.completionProgress}>
             <Text style={styles.completionValue}>{updatedProgress}%</Text>
-            <Text style={styles.completionLabel}>journey resolved</Text>
+            <Text style={styles.completionLabel}>plan progress</Text>
           </View>
           <View style={styles.completionCopy}>
             <Text style={styles.completionTitle}>+25 XP earned</Text>

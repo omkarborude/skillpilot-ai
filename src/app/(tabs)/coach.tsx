@@ -84,7 +84,7 @@ export default function CoachScreen() {
             <Text style={styles.coachCaption}>Contextual coach for your current technique</Text>
           </View>
         </View>
-        <Pill tone="green">Focused on {activeTechnique?.shortTitle ?? plan.title}</Pill>
+        <Pill tone="green">Working on {activeTechnique?.shortTitle ?? plan.title}</Pill>
       </LinearGradient>
 
       <ScrollView

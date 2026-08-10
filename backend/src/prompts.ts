@@ -6,7 +6,8 @@ Choose media by how the technique is actually learned:
 - audio only when listening, rhythm, tone, or pronunciation is essential
 - article for concepts, checklists, notation, and decision processes
 - practice for immediate application; every technique needs a practice resource
-Never recommend audio-only learning for chess. Do not invent URLs.`;
+For video, audio, and article items, return a precise searchQuery that a learner can paste into YouTube or Google. Describe what to look for without naming a specific creator, publication, title, URL, duration, or other unverified metadata. Never recommend audio-only learning for chess.
+Practice items open SkillPilot's built-in timer and checklist, so they need only a concise description. Do not invent URLs or imply that a search recommendation is a verified source.`;
 
 export function buildPlanPrompt(goal: LearnerGoal): string {
   return `You are a practical hobby curriculum designer. Build a focused learning plan, not a complete course.

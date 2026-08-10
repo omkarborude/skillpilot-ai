@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
     <Page contentStyle={styles.page}>
       <LinearGradient colors={[colors.night, '#2E176E']} style={styles.hero}>
         <View style={styles.heroTopRow}>
-          <Pill tone="green">PERSONAL • FOCUSED • PRACTICAL</Pill>
+          <Pill tone="green">PERSONAL • PRACTICAL • ADAPTABLE</Pill>
           <RobotMascot size="small" />
         </View>
         <Text style={styles.heroTitle}>Learn the right few things—not everything.</Text>
@@ -88,7 +88,7 @@ export default function OnboardingScreen() {
       ) : null}
 
       <SectionHeading
-        eyebrow="One focused setup"
+        eyebrow="A quick setup"
         title="What do you want to get better at?"
         caption="This replaces a long onboarding flow. You can change the plan later."
       />
@@ -178,7 +178,7 @@ export default function OnboardingScreen() {
         <View style={styles.recommendation}>
           <RobotMascot size="small" />
           <Text style={styles.recommendationText}>
-            {dailyMinutes} minutes is enough for one focused technique and a quick reflection.
+            {dailyMinutes} minutes is enough for one technique and a quick reflection.
           </Text>
         </View>
       </Card>

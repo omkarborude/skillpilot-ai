@@ -52,7 +52,7 @@ describe('SkillPilot API', () => {
     assert.equal(response.body.error.code, 'ROUTE_NOT_FOUND');
   });
 
-  it('generates a focused plan with valid progression and media choices', async () => {
+  it('generates a plan with valid progression and honest resource recommendations', async () => {
     const response = await request(app)
       .post('/api/v1/plans/generate')
       .send({ goal: chessGoal })
@@ -67,6 +67,14 @@ describe('SkillPilot API', () => {
         technique.resources.every((resource) => resource.type !== 'audio'),
       ),
     );
+    const externalResources = plan.techniques.flatMap(
+      (technique: { resources: { type: string; searchQuery?: string; title?: string; durationLabel?: string; url?: string }[] }) =>
+        technique.resources.filter((resource) => resource.type !== 'practice'),
+    );
+    assert.ok(externalResources.every((resource: { searchQuery?: string }) => resource.searchQuery));
+    assert.ok(externalResources.every((resource: { title?: string; durationLabel?: string; url?: string }) =>
+      resource.title === undefined && resource.durationLabel === undefined && resource.url === undefined,
+    ));
     assert.equal(response.body.meta.provider, 'gemini');
     assert.equal(response.body.meta.fallbackUsed, false);
   });
