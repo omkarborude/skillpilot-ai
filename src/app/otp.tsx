@@ -44,7 +44,7 @@ export default function OtpScreen() {
     <Page keyboardAware contentStyle={styles.page}>
       <View style={styles.mascotWrap}>
         <RobotMascot size="large" />
-        <Pill>DEVICE VERIFICATION</Pill>
+        <Pill>DEMO ACCESS</Pill>
       </View>
 
       <Card style={styles.card}>
@@ -52,13 +52,13 @@ export default function OtpScreen() {
           <Ionicons name="shield-checkmark-outline" size={28} color={colors.primary} />
         </View>
         <View style={styles.copy}>
-          <Text style={styles.title}>Enter the OTP</Text>
+          <Text style={styles.title}>Enter a demo code</Text>
           <Text style={styles.caption}>
-            Enter your verification code for {phoneNumber ? `••••${phoneNumber.slice(-4)}` : 'this number'}.
+            No SMS is sent. Enter any numeric code for ••••{phoneNumber.slice(-4)}.
           </Text>
         </View>
         <TextField
-          label="One-time password"
+          label="Demo access code"
           value={otp}
           onChangeText={setOtp}
           placeholder="1234"
@@ -71,10 +71,10 @@ export default function OtpScreen() {
           returnKeyType="done"
           onSubmitEditing={verifyOtp}
         />
-        <Button label="Verify and continue" icon="checkmark-circle" onPress={verifyOtp} />
+        <Button label="Continue" icon="checkmark-circle" onPress={verifyOtp} />
         <Pressable accessibilityRole="button" onPress={() => router.back()} style={styles.editButton}>
           <Ionicons name="arrow-back" size={17} color={colors.primary} />
-          <Text style={styles.editText}>Change phone number</Text>
+          <Text style={styles.editText}>Change demo number</Text>
         </Pressable>
       </Card>
     </Page>
