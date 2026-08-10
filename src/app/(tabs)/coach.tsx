@@ -54,7 +54,6 @@ export default function CoachScreen() {
     setLoading(true);
     setRequestError('');
     const learnerMessage = createMessage('learner', trimmed);
-    addMessage(learnerMessage);
     try {
       const response = await aiProvider.answerCoach(trimmed, {
         goal,
@@ -62,10 +61,11 @@ export default function CoachScreen() {
         journeyProgress: calculateJourneyProgress(plan),
         recentMessages: [...messages, learnerMessage],
       });
+      addMessage(learnerMessage);
       addMessage(createMessage('coach', response));
     } catch {
       setInput(trimmed);
-      setRequestError('Nova could not respond right now. Your message is saved—retry when the service is available.');
+      setRequestError('Your message was not sent. Check the service and try again.');
     } finally {
       setLoading(false);
     }
