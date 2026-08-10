@@ -14,8 +14,12 @@ import type { LearningProvider } from './learning-provider.js';
 
 type StructuredSchema = typeof PlanDraftSchema | typeof TechniqueDraftSchema;
 
-const unsupportedGeminiSchemaKeys = new Set(['$schema', 'minLength', 'maxLength']);
-
+const unsupportedGeminiSchemaKeys = new Set([
+  '$schema',
+  'minLength',
+  'maxLength',
+  'format',
+]);
 export function sanitizeGeminiSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(sanitizeGeminiSchema);
   if (!value || typeof value !== 'object') return value;
