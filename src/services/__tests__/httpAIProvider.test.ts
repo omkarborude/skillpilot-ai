@@ -51,7 +51,7 @@ describe('HttpAIProvider', () => {
       json: async () => ({
         error: { message: 'Request body is invalid', requestId: 'request-456' },
       }),
-    } as Response) as unknown as typeof fetch;
+    } as unknown as Response) as unknown as typeof fetch;
 
     const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
     await expect(provider.generatePlan(goal)).rejects.toThrow('request-456');
@@ -68,5 +68,25 @@ describe('HttpAIProvider', () => {
 
     const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
     await expect(provider.generatePlan(goal)).rejects.toThrow('live Gemini response');
+  });
+
+  it('returns a useful error when the service response is not JSON', async () => {
+    global.fetch = jest.fn<typeof fetch>().mockResolvedValue({
+      ok: false,
+      status: 502,
+      json: async () => { throw new SyntaxError('Unexpected token'); },
+    } as unknown as Response) as unknown as typeof fetch;
+
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com');
+    await expect(provider.generatePlan(goal)).rejects.toThrow('Learning service returned 502');
+  });
+
+  it('returns a useful error when a request times out', async () => {
+    const abortError = new Error('aborted');
+    abortError.name = 'AbortError';
+    global.fetch = jest.fn<typeof fetch>().mockRejectedValue(abortError) as unknown as typeof fetch;
+
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com');
+    await expect(provider.generatePlan(goal)).rejects.toThrow('learning service timed out');
   });
 });
