@@ -22,10 +22,3 @@ export const levelOptions: { id: SkillLevel; title: string; caption: string }[] 
 ];
 
 export const dailyMinuteOptions = [15, 20, 30, 45] as const;
-
-export const generationSteps = [
-  { title: 'Understanding your goal', caption: 'Choosing the smallest useful outcome' },
-  { title: 'Selecting core techniques', caption: 'Keeping the plan focused at 5–8 steps' },
-  { title: 'Matching the right media', caption: 'Video, audio, reading, or practice by skill' },
-  { title: 'Balancing your daily time', caption: 'Building sessions you can realistically finish' },
-] as const;
