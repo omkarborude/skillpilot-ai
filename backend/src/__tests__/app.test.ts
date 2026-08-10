@@ -47,6 +47,11 @@ describe('SkillPilot API', () => {
     assert.equal(typeof response.body.error.requestId, 'string');
   });
 
+  it('does not expose the removed production hobby catalog', async () => {
+    const response = await request(app).get('/api/v1/hobbies').expect(404);
+    assert.equal(response.body.error.code, 'ROUTE_NOT_FOUND');
+  });
+
   it('generates a focused plan with valid progression and media choices', async () => {
     const response = await request(app)
       .post('/api/v1/plans/generate')

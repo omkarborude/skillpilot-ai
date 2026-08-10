@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { type Href, useRouter } from 'expo-router';
+import { Redirect, type Href, useRouter } from 'expo-router';
 import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, TextField } from '@/components/ui';
@@ -18,6 +18,11 @@ export default function OtpScreen() {
   const [error, setError] = useState('');
 
   const verifyOtp = () => {
+    if (!useAuthStore.getState().phoneNumber) {
+      router.replace('/login');
+      return;
+    }
+
     const normalizedOtp = otp.replace(/\D/g, '');
     if (!normalizedOtp) {
       setError('Enter your verification code to continue.');
@@ -30,6 +35,10 @@ export default function OtpScreen() {
     if (hasExistingJourney) completeOnboarding();
     router.replace(hasExistingJourney ? '/(tabs)' : ('/onboarding' as Href));
   };
+
+  if (!phoneNumber) {
+    return <Redirect href="/login" />;
+  }
 
   return (
     <Page keyboardAware contentStyle={styles.page}>

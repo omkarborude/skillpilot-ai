@@ -28,8 +28,6 @@ export default function PracticeScreen() {
   const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
   const [running, setRunning] = useState(false);
   const [checkedTasks, setCheckedTasks] = useState<string[]>([]);
-  const [focusMode, setFocusMode] = useState(true);
-  const [metronome, setMetronome] = useState(false);
   const [completeVisible, setCompleteVisible] = useState(false);
 
   const isRunning = running && secondsLeft > 0;
@@ -149,33 +147,6 @@ export default function PracticeScreen() {
         })}
       </Card>
 
-      <View style={styles.toolsRow}>
-        <Pressable
-          accessibilityRole="switch"
-          accessibilityState={{ checked: focusMode }}
-          onPress={() => setFocusMode((current) => !current)}
-          style={[styles.tool, focusMode && styles.toolActive]}
-        >
-          <Ionicons name="leaf" size={20} color={focusMode ? colors.cyan : '#C5BFDC'} />
-          <View style={styles.toolCopy}>
-            <Text style={styles.toolTitle}>Focus mode</Text>
-            <Text style={styles.toolState}>{focusMode ? 'On' : 'Off'}</Text>
-          </View>
-        </Pressable>
-        <Pressable
-          accessibilityRole="switch"
-          accessibilityState={{ checked: metronome }}
-          onPress={() => setMetronome((current) => !current)}
-          style={[styles.tool, metronome && styles.toolActive]}
-        >
-          <Ionicons name="pulse" size={20} color={metronome ? colors.cyan : '#C5BFDC'} />
-          <View style={styles.toolCopy}>
-            <Text style={styles.toolTitle}>Metronome</Text>
-            <Text style={styles.toolState}>{metronome ? '60 BPM' : 'Off'}</Text>
-          </View>
-        </Pressable>
-      </View>
-
       <Button
         label={allTasksChecked ? 'Complete technique' : 'Check every practice cue'}
         icon={allTasksChecked ? 'checkmark-circle' : undefined}
@@ -234,12 +205,6 @@ const styles = StyleSheet.create({
   checkboxChecked: { backgroundColor: colors.success, borderColor: colors.success },
   taskText: { ...typography.body, color: colors.inkSoft, flex: 1 },
   taskTextChecked: { color: colors.muted, textDecorationLine: 'line-through' },
-  toolsRow: { flexDirection: 'row', gap: spacing.xs },
-  tool: { flex: 1, minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: spacing.xs, borderRadius: radius.md, padding: spacing.sm, backgroundColor: 'rgba(255,255,255,0.07)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  toolActive: { borderColor: 'rgba(33,200,195,0.46)', backgroundColor: 'rgba(33,200,195,0.1)' },
-  toolCopy: { flex: 1 },
-  toolTitle: { ...typography.label, color: colors.white, fontSize: 13 },
-  toolState: { ...typography.caption, color: '#C6BFDE' },
   completionContent: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
   completionProgress: { width: 94, height: 94, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.successSoft, borderWidth: 7, borderColor: colors.success },
   completionValue: { ...typography.heading, color: colors.success },

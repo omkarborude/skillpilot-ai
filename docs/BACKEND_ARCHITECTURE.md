@@ -20,7 +20,6 @@ flowchart TD
 backend/
   src/
     __tests__/       HTTP, provider, and failure tests
-    data/            curated hobby blueprints
     domain/          AI-output normalization
     providers/       Gemini adapter and test fixture provider
     services/        provider orchestration
@@ -41,7 +40,6 @@ The API deliberately has no database. Journey progress, conversation history, an
 | Method | Route | Responsibility |
 |---|---|---|
 | `GET` | `/api/v1/health` | Deployment and provider health |
-| `GET` | `/api/v1/hobbies` | Lightweight prepared catalog metadata |
 | `POST` | `/api/v1/plans/generate` | Create a validated 5–8 technique plan |
 | `POST` | `/api/v1/techniques/replace` | Replace one technique while preserving identity/order |
 | `POST` | `/api/v1/coach/respond` | Return one contextual cue and next action |

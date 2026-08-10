@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -11,7 +11,7 @@ import { Button, Card, Pill, StatusBadge } from '@/components/ui';
 import { aiProvider } from '@/services/aiProvider';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
-import { ReplacementMode } from '@/types/learning';
+import { LearningResource, ReplacementMode } from '@/types/learning';
 
 const replacementOptions: {
   id: ReplacementMode;
@@ -35,8 +35,8 @@ export default function TechniqueDetailScreen() {
   const [replaceVisible, setReplaceVisible] = useState(false);
   const [skipVisible, setSkipVisible] = useState(false);
   const [replacing, setReplacing] = useState<ReplacementMode | null>(null);
-  const [selectedResource, setSelectedResource] = useState<string | null>(null);
   const [replaceError, setReplaceError] = useState('');
+  const [resourceError, setResourceError] = useState('');
 
   const technique = useMemo(
     () => plan?.techniques.find((item) => item.id === id),
@@ -76,6 +76,26 @@ export default function TechniqueDetailScreen() {
     router.replace('/(tabs)/plan');
   };
 
+  const openResource = async (resource: LearningResource) => {
+    setResourceError('');
+
+    if (resource.type === 'practice') {
+      router.push({ pathname: '/practice/[id]', params: { id: technique.id } });
+      return;
+    }
+
+    const searchTerms = `${goal?.hobbyName ?? plan?.title ?? ''} ${resource.title}`.trim();
+    const searchUrl = resource.type === 'video' || resource.type === 'audio'
+      ? `https://www.youtube.com/results?search_query=${encodeURIComponent(searchTerms)}`
+      : `https://www.google.com/search?q=${encodeURIComponent(searchTerms)}`;
+
+    try {
+      await Linking.openURL(resource.url ?? searchUrl);
+    } catch {
+      setResourceError('This resource could not be opened. Check your connection and try again.');
+    }
+  };
+
   return (
     <Page contentStyle={styles.page}>
       <ScreenHeader title={`Technique ${technique.order}`} caption={plan?.title} />
@@ -101,7 +121,7 @@ export default function TechniqueDetailScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Open ${featuredResource.title}`}
-            onPress={() => setSelectedResource(featuredResource.id)}
+            onPress={() => void openResource(featuredResource)}
             style={({ pressed }) => [styles.playButton, pressed && styles.pressed]}
           >
             <Ionicons name={featuredResource.type === 'audio' ? 'headset' : 'play'} size={27} color={colors.white} />
@@ -113,15 +133,7 @@ export default function TechniqueDetailScreen() {
         </LinearGradient>
       ) : null}
 
-      {selectedResource ? (
-        <View style={styles.previewNote}>
-          <Ionicons name="checkmark-circle" size={20} color={colors.success} />
-          <Text style={styles.previewText}>{featuredResource?.description ?? 'Use this resource, then return to complete the practice checklist.'}</Text>
-          <Pressable onPress={() => setSelectedResource(null)} hitSlop={8}>
-            <Ionicons name="close" size={19} color={colors.muted} />
-          </Pressable>
-        </View>
-      ) : null}
+      {resourceError ? <Text style={styles.resourceError}>{resourceError}</Text> : null}
 
       <View style={styles.tabs}>
         {(['overview', 'resources'] as const).map((item) => (
@@ -161,7 +173,7 @@ export default function TechniqueDetailScreen() {
       ) : (
         <View style={styles.sectionStack}>
           {technique.resources.map((resource) => (
-            <ResourceCard key={resource.id} resource={resource} onPress={() => setSelectedResource(resource.id)} />
+            <ResourceCard key={resource.id} resource={resource} onPress={() => void openResource(resource)} />
           ))}
         </View>
       )}
@@ -255,8 +267,7 @@ const styles = StyleSheet.create({
   featuredCaption: { ...typography.caption, color: '#D7D0EC', marginTop: 3 },
   featuredDecorOne: { position: 'absolute', width: 160, height: 160, borderRadius: radius.pill, right: -55, top: -70, backgroundColor: 'rgba(120,90,255,0.22)' },
   featuredDecorTwo: { position: 'absolute', width: 110, height: 110, borderRadius: radius.pill, left: -35, bottom: -40, backgroundColor: 'rgba(33,200,195,0.12)' },
-  previewNote: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs, borderRadius: radius.md, padding: spacing.sm, backgroundColor: colors.successSoft },
-  previewText: { ...typography.caption, color: colors.inkSoft, flex: 1 },
+  resourceError: { ...typography.caption, color: colors.danger, padding: spacing.sm, backgroundColor: colors.dangerSoft, borderRadius: radius.md },
   tabs: { flexDirection: 'row', borderRadius: radius.md, padding: 4, backgroundColor: colors.surfaceAlt },
   tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: radius.sm },
   tabActive: { backgroundColor: colors.surface },

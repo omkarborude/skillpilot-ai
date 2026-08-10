@@ -5,7 +5,6 @@ import type {
   ReplaceTechniqueRequest,
   TechniqueDraft,
 } from '../contracts.js';
-import { blueprintCatalog, type HobbyBlueprint } from '../data/blueprints.js';
 import { normalizePlanDraft, normalizeReplacement } from '../domain/normalizers.js';
 import type { LearningProvider } from '../providers/learning-provider.js';
 
@@ -16,20 +15,24 @@ const resourceCopy = {
   practice: { title: 'Guided practice', durationLabel: '10 min', description: 'Apply the technique and capture one observation.' },
 } as const;
 
-function blueprintToDraft(blueprint: HobbyBlueprint, hobbyName: string): PlanDraft {
+function createPlanDraft(goal: LearnerGoal): PlanDraft {
+  const hobbyName = goal.customHobby ?? goal.hobbyName;
   return {
-    title: blueprint.title.replace('Hobby', hobbyName),
-    outcome: blueprint.outcome.replace('hobby', hobbyName.toLowerCase()),
-    totalWeeks: blueprint.totalWeeks,
-    techniques: blueprint.techniques.map((technique) => ({
-      title: technique.title,
-      shortTitle: technique.shortTitle,
-      description: technique.description,
-      whyItMatters: technique.whyItMatters,
-      minutes: technique.minutes,
-      resources: technique.resourceTypes.map((type) => ({ type, ...resourceCopy[type] })),
-      practiceTasks: technique.practiceTasks,
-      keyPoints: technique.keyPoints,
+    title: `${hobbyName} foundations`,
+    outcome: `Build confidence through a focused ${hobbyName.toLowerCase()} practice sequence.`,
+    totalWeeks: 4,
+    techniques: Array.from({ length: 5 }, (_, index) => ({
+      title: `${hobbyName} technique ${index + 1}`,
+      shortTitle: `Technique ${index + 1}`,
+      description: `A focused step for improving ${hobbyName.toLowerCase()} through deliberate practice.`,
+      whyItMatters: 'This step builds a reusable foundation for the next technique in the sequence.',
+      minutes: Math.min(goal.dailyMinutes, 20),
+      resources: [
+        { type: goal.hobbyId === 'chess' ? 'article' as const : 'video' as const, ...resourceCopy[goal.hobbyId === 'chess' ? 'article' : 'video'] },
+        { type: 'practice' as const, ...resourceCopy.practice },
+      ],
+      practiceTasks: ['Review the core cue', 'Complete five careful repetitions'],
+      keyPoints: ['Work slowly first', 'Check one result at a time'],
     })),
   };
 }
@@ -38,10 +41,7 @@ export class FixtureLearningProvider implements LearningProvider {
   readonly name = 'gemini' as const;
 
   async generatePlan(goal: LearnerGoal) {
-    return normalizePlanDraft(
-      goal,
-      blueprintToDraft(blueprintCatalog[goal.hobbyId], goal.customHobby ?? goal.hobbyName),
-    );
+    return normalizePlanDraft(goal, createPlanDraft(goal));
   }
 
   async replaceTechnique(input: ReplaceTechniqueRequest) {
