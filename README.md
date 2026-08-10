@@ -68,18 +68,8 @@ The deployed client is configured to use `https://skillpilot-api.onrender.com`. 
 
 External learning items are search recommendations, not a curated resource catalog. The backend returns a validated search query and the client opens a Zod-validated YouTube or Google search URL. SkillPilot does not claim a source title, duration, or direct URL that it has not verified. Google Search grounding was reviewed, but grounded source attribution is not enabled in the current provider path and has not been live-verified for this submission.
 
-## AI-assisted engineering record
 
-I used AI for product ideation, official documentation research, and review of documentation, code, and test cases. I owned the product scope, architecture decisions, implementation review, and testing. I reviewed generated suggestions before accepting them and kept the final behavior within the boundaries described in this repository.
-
-Before submission, I use this checklist:
-
-- Run and inspect every primary flow on Android and responsive web.
-- Review the complete PR diff and remove any code that cannot be explained.
-- Test app restart persistence, complete/skip/replace transitions, and reset recovery.
-- Record the Loom from a real device or emulator.
-
-## Design and product references
+I## Design and product references
 
 - Category references: [Oboe](https://oboe.fyi/) and [Wondering](https://wondering.app/)
 - Visual direction: the supplied SkillPilot concept board (purple/lavender palette, rounded cards, AI mascot, compact bottom navigation)
