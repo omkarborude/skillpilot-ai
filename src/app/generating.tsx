@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { type Href, useRouter } from 'expo-router';
+import { Redirect, type Href, useRouter } from 'expo-router';
 import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, ProgressBar } from '@/components/ui';
@@ -16,6 +16,7 @@ export default function GeneratingScreen() {
   const router = useRouter();
   const goal = useJourneyStore((state) => state.goal);
   const setPlan = useJourneyStore((state) => state.setPlan);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
   const [activeStep, setActiveStep] = useState(0);
   const [ready, setReady] = useState(false);
@@ -24,7 +25,7 @@ export default function GeneratingScreen() {
   const startedAttempt = useRef(-1);
 
   useEffect(() => {
-    if (!goal || startedAttempt.current === attempt) return;
+    if (!isAuthenticated || !goal || startedAttempt.current === attempt) return;
     startedAttempt.current = attempt;
     let cancelled = false;
     const timeouts = generationSteps.map((_, index) =>
@@ -51,7 +52,7 @@ export default function GeneratingScreen() {
       cancelled = true;
       timeouts.forEach(clearTimeout);
     };
-  }, [attempt, goal, setPlan]);
+  }, [attempt, goal, isAuthenticated, setPlan]);
 
   const retry = () => {
     setError('');
@@ -59,6 +60,10 @@ export default function GeneratingScreen() {
     setActiveStep(0);
     setAttempt((current) => current + 1);
   };
+
+  if (!isAuthenticated) {
+    return <Redirect href="/login" />;
+  }
 
   if (!goal) {
     return (
