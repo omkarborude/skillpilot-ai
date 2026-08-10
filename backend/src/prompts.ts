@@ -35,9 +35,16 @@ ${mediaRules}`;
 }
 
 export function buildCoachPrompt(input: CoachRequest): string {
+  const recentConversation = input.recentMessages?.length
+    ? input.recentMessages.map(({ role, content }) => `${role}: ${content}`).join('\n')
+    : 'No earlier conversation is available.';
+
   return `Learner question: ${input.prompt}
 Current hobby: ${input.goal?.customHobby ?? input.goal?.hobbyName ?? 'not specified'}
 Current technique: ${input.technique ? JSON.stringify(input.technique) : 'not specified'}
+Journey progress: ${input.journeyProgress ?? 0}%
+Recent conversation:
+${recentConversation}
 
 Answer as a concise practice coach. Give one concrete cue and one immediate next action. Do not give a long lecture.`;
 }

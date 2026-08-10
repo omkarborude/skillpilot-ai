@@ -6,23 +6,30 @@ import { Page } from '@/components/Page';
 import { Card, Pill, ProgressBar, SectionHeading } from '@/components/ui';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
-import { Achievement } from '@/types/learning';
+import { Achievement, PracticeSession } from '@/types/learning';
 import { calculateJourneyProgress, calculateMasteryProgress, techniqueCounts } from '@/utils/learning';
 
-const week = [
-  { label: 'M', minutes: 18 },
-  { label: 'T', minutes: 24 },
-  { label: 'W', minutes: 12 },
-  { label: 'T', minutes: 28 },
-  { label: 'F', minutes: 20 },
-  { label: 'S', minutes: 30 },
-  { label: 'S', minutes: 16 },
-];
+function recentWeek(sessions: PracticeSession[]) {
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - index));
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+    return {
+      label: date.toLocaleDateString(undefined, { weekday: 'narrow' }),
+      minutes: sessions
+        .filter(({ completedAt }) => completedAt >= date.getTime() && completedAt < nextDate.getTime())
+        .reduce((total, { minutes }) => total + minutes, 0),
+    };
+  });
+}
 
 export default function ProgressScreen() {
   const plan = useJourneyStore((state) => state.plan);
   const practiceMinutes = useJourneyStore((state) => state.practiceMinutes);
   const streakDays = useJourneyStore((state) => state.streakDays);
+  const practiceSessions = useJourneyStore((state) => state.practiceSessions);
 
   if (!plan) {
     return (
@@ -35,6 +42,11 @@ export default function ProgressScreen() {
   const journeyProgress = calculateJourneyProgress(plan);
   const masteryProgress = calculateMasteryProgress(plan);
   const counts = techniqueCounts(plan);
+  const week = recentWeek(practiceSessions);
+  const activeDays = week.filter(({ minutes }) => minutes > 0).length;
+  const averageSessionMinutes = practiceSessions.length
+    ? Math.round(practiceMinutes / practiceSessions.length)
+    : 0;
   const achievements: Achievement[] = [
     { id: 'streak', title: '7-day streak', icon: '🔥', unlocked: streakDays >= 7 },
     { id: 'first', title: 'First technique', icon: '🎯', unlocked: counts.completed >= 1 },
@@ -56,7 +68,7 @@ export default function ProgressScreen() {
             <Text style={styles.heroEyebrow}>YOUR JOURNEY</Text>
             <Text style={styles.heroTitle}>{plan.title}</Text>
           </View>
-          <Pill tone="green">+12% this week</Pill>
+          <Pill tone="green">{activeDays} active {activeDays === 1 ? 'day' : 'days'}</Pill>
         </View>
         <View style={styles.heroProgressRow}>
           <View style={styles.progressCircle}>
@@ -104,7 +116,7 @@ export default function ProgressScreen() {
               <View style={styles.barTrack}>
                 <LinearGradient
                   colors={[colors.primarySoft, colors.primary]}
-                  style={[styles.bar, { height: Math.max(18, day.minutes * 3) }]}
+                  style={[styles.bar, { height: day.minutes === 0 ? 0 : Math.max(18, Math.min(96, day.minutes * 3)) }]}
                 />
               </View>
               <Text style={styles.dayLabel}>{day.label}</Text>
@@ -131,8 +143,12 @@ export default function ProgressScreen() {
           <Ionicons name="sparkles" size={22} color={colors.primary} />
         </View>
         <View style={styles.insightCopy}>
-          <Text style={styles.insightTitle}>Nova noticed a pattern</Text>
-          <Text style={styles.insightText}>You practice most consistently when the next action is under 20 minutes. Keep tomorrow’s session small.</Text>
+          <Text style={styles.insightTitle}>Your practice pattern</Text>
+          <Text style={styles.insightText}>
+            {practiceSessions.length
+              ? `Your ${practiceSessions.length} recorded session${practiceSessions.length === 1 ? '' : 's'} average ${averageSessionMinutes} minute${averageSessionMinutes === 1 ? '' : 's'}.`
+              : 'Complete a practice session to see patterns based on your real activity.'}
+          </Text>
         </View>
       </Card>
     </Page>

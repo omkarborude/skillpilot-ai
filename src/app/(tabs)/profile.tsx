@@ -20,6 +20,7 @@ export default function ProfileScreen() {
   const resetJourney = useJourneyStore((state) => state.resetJourney);
   const logout = useAuthStore((state) => state.logout);
   const restartOnboarding = useAuthStore((state) => state.restartOnboarding);
+  const phoneNumber = useAuthStore((state) => state.phoneNumber);
   const [showReset, setShowReset] = useState(false);
 
   if (!plan || !goal) {
@@ -35,7 +36,7 @@ export default function ProfileScreen() {
 
   const shareProgress = async () => {
     await Share.share({
-      message: `I’m ${progress}% through my ${plan.title} journey: ${counts.completed} focused techniques completed with SkillPilot AI.`,
+      message: `I’m ${progress}% through my ${plan.title} journey: ${counts.completed} focused techniques completed with SkillPilot.`,
     });
   };
 
@@ -43,7 +44,7 @@ export default function ProfileScreen() {
     resetJourney();
     restartOnboarding();
     setShowReset(false);
-    router.replace('/');
+    router.replace('/onboarding' as Href);
   };
 
   const handleLogout = () => {
@@ -54,9 +55,9 @@ export default function ProfileScreen() {
   return (
     <Page tabScreen contentStyle={styles.page}>
       <View style={styles.profileHeader}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>OB</Text></View>
+        <View style={styles.avatar}><Text style={styles.avatarText}>SP</Text></View>
         <View style={styles.identity}>
-          <Text style={styles.name}>Omkar Borude</Text>
+          <Text style={styles.name}>{phoneNumber ? `Learner ••••${phoneNumber.slice(-4)}` : 'SkillPilot learner'}</Text>
           <Text style={styles.role}>Focused learner • {goal.hobbyName}</Text>
           <View style={styles.badges}>
             <Pill tone="amber">🔥 {streakDays} day streak</Pill>
@@ -107,8 +108,8 @@ export default function ProfileScreen() {
       <Card style={styles.productNote}>
         <Ionicons name="information-circle" size={22} color={colors.primary} />
         <View style={styles.productNoteCopy}>
-          <Text style={styles.productNoteTitle}>Why there is no settings maze</Text>
-          <Text style={styles.productNoteText}>This MVP keeps only actions that help you learn: continue, adapt, review, share, or start a new goal.</Text>
+          <Text style={styles.productNoteTitle}>A focused learning workspace</Text>
+          <Text style={styles.productNoteText}>Continue, adapt, review, share progress, or start a different goal whenever your priorities change.</Text>
         </View>
       </Card>
 

@@ -20,7 +20,7 @@ export default function RootLayout() {
 
   const rootSegment = (segments as string[])[0];
   const isAuthRoute = rootSegment === 'login' || rootSegment === 'otp';
-  const isOnboardingRoute = rootSegment === undefined || rootSegment === 'generating';
+  const isOnboardingRoute = rootSegment === 'onboarding' || rootSegment === 'generating';
   const isProtectedLearningRoute =
     rootSegment === '(tabs)' || rootSegment === 'technique' || rootSegment === 'practice';
   const shouldRedirectToLogin = hydrated && !isAuthenticated && !isAuthRoute;
@@ -36,15 +36,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (shouldRedirectToLogin) router.replace('/login' as Href);
     else if (shouldRedirectToDashboard) router.replace('/(tabs)');
-    else if (shouldRedirectToOnboarding) router.replace('/');
+    else if (shouldRedirectToOnboarding) router.replace('/onboarding' as Href);
   }, [router, shouldRedirectToDashboard, shouldRedirectToLogin, shouldRedirectToOnboarding]);
 
-  if (
-    !hydrated ||
-    shouldRedirectToLogin ||
-    shouldRedirectToDashboard ||
-    shouldRedirectToOnboarding
-  ) {
+  if (!hydrated) {
     return (
       <View style={styles.loading}>
         <RobotMascot size="large" />
@@ -65,7 +60,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="login" options={{ gestureEnabled: false }} />
         <Stack.Screen name="otp" />
-        <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
         <Stack.Screen name="generating" options={{ gestureEnabled: false }} />
         <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
         <Stack.Screen name="technique/[id]" />

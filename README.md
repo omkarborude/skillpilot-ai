@@ -1,18 +1,18 @@
-# SkillPilot AI
+# SkillPilot
 
-SkillPilot turns one hobby goal into a focused 5–8 technique learning journey. It recommends the right medium for each technique, gives the learner one clear next action, supports complete/skip/AI-replace decisions, and persists progress locally.
+SkillPilot turns one hobby goal into a focused 5–8 technique learning journey. It recommends the right medium for each technique, gives the learner one clear next action, supports complete, skip, and plan-adaptation decisions, and persists progress locally.
 
 ## Product scope
 
-The MVP intentionally contains nine primary screens:
+The product contains nine primary screens:
 
 1. Create Goal
-2. AI Plan Generation
+2. Plan Generation
 3. Dashboard
 4. Learning Plan
 5. Technique Detail
 6. Practice
-7. AI Coach
+7. Coach
 8. Progress
 9. Profile
 
@@ -22,9 +22,9 @@ Today’s plan, resource preview, lesson replacement, achievements, and confirma
 
 - Expo SDK 57, React Native 0.86, React 19.2, strict TypeScript
 - Expo Router for Android, iOS, and responsive web
-- Zustand + AsyncStorage for small, persisted local journey state
-- Repository and AI-provider interfaces, currently backed by deterministic JSON
-- Express 5 + Zod backend with mock/Gemini provider adapters
+- Zustand with IndexedDB on web and AsyncStorage on native for persisted journey state
+- An HTTP provider backed by Gemini for plans, adaptations, and Coach responses
+- Express 5 + Zod backend with validated Gemini structured output
 - React Native StyleSheet and design tokens; no heavyweight chart/UI framework
 - Jest, Node test runner, React Native Testing Library, ESLint, TypeScript, and GitHub Actions
 
@@ -37,7 +37,7 @@ npm install
 npm run start
 ```
 
-Open Android, iOS, or web from the Expo terminal. The first screen can generate a goal-specific local plan or open the ready-made Campfire Guitar demo.
+Open Android, iOS, or web from the Expo terminal and create a goal-specific plan.
 
 Run the API separately:
 
@@ -47,7 +47,7 @@ npm install
 npm run dev
 ```
 
-Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_URL=http://localhost:3001` to use the API. Without it, the app stays in deterministic offline-demo mode.
+Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_URL=http://localhost:3001`. The app shows a retryable service error when the API is unavailable; it never substitutes fabricated learning content.
 
 ## Validate
 
@@ -62,9 +62,7 @@ npm run backend:test
 
 ## Data and backend
 
-`src/data/guitar-plan.json` is the frontend's versioned demo plan. `backend/src/data/hobby-blueprints.json` provides deterministic server data for guitar, chess, photography, drawing, and custom hobbies. Screens still depend on `AIPlanProvider`; configuring the API URL swaps in `HttpAIProvider` without screen rewrites and falls back locally if the network or model is unavailable.
-
-The backend defaults to mock mode. In Gemini mode it uses Gemini 3.5 Flash-Lite with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates the result before returning it. Google currently lists free-tier input/output for this stable model; project-specific quotas must still be checked before submission.
+Screens depend on `AIPlanProvider`, implemented by `HttpAIProvider`. The backend uses the configured Gemini model with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates every generated result before returning it. Provider failures remain visible and retryable instead of being replaced with dummy content.
 
 The API can be hosted on Vercel Hobby for this non-commercial assignment. Import the repository, choose `backend` as the project Root Directory, and set the environment variables described in `backend/README.md`.
 

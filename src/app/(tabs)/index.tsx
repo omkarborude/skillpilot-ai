@@ -23,6 +23,7 @@ export default function DashboardScreen() {
   const plan = useJourneyStore((state) => state.plan);
   const streakDays = useJourneyStore((state) => state.streakDays);
   const xp = useJourneyStore((state) => state.xp);
+  const practiceSessions = useJourneyStore((state) => state.practiceSessions);
 
   if (!plan) {
     return (
@@ -36,16 +37,20 @@ export default function DashboardScreen() {
   const activeTechnique = getActiveTechnique(plan);
   const counts = techniqueCounts(plan);
   const todayResources = activeTechnique?.resources.slice(0, 3) ?? [];
+  const now = new Date();
+  const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 18 ? 'Good afternoon' : 'Good evening';
+  const formattedDate = now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+  const latestSession = practiceSessions.at(-1);
 
   return (
     <Page tabScreen contentStyle={styles.page}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.eyebrow}>SUNDAY, AUGUST 9</Text>
-          <Text style={styles.greeting}>Good morning, Omkar 👋</Text>
+          <Text style={styles.eyebrow}>{formattedDate}</Text>
+          <Text style={styles.greeting}>{greeting} 👋</Text>
           <Text style={styles.subheading}>Ready to move one useful step forward?</Text>
         </View>
-        <View style={styles.avatar}><Text style={styles.avatarText}>OB</Text></View>
+        <View style={styles.avatar}><Text style={styles.avatarText}>SP</Text></View>
       </View>
 
       <LinearGradient colors={[colors.night, '#312078']} style={styles.missionCard}>
@@ -143,7 +148,9 @@ export default function DashboardScreen() {
         <View style={styles.insightCopy}>
           <Text style={styles.insightEyebrow}>NOVA’S NOTE</Text>
           <Text style={styles.insightText}>
-            You’re most consistent when sessions stay under {activeTechnique?.minutes ?? 20} minutes. Keep today intentionally small.
+            {latestSession
+              ? `Your latest session added ${latestSession.minutes} focused minute${latestSession.minutes === 1 ? '' : 's'}. Continue when you are ready.`
+              : 'Complete your first practice session to start building a personal activity history.'}
           </Text>
         </View>
       </Card>

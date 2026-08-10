@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { HttpAIProvider } from '@/services/httpAIProvider';
-import { planRepository } from '@/services/planRepository';
-import type { LearnerGoal } from '@/types/learning';
+import type { LearnerGoal, LearningPlan } from '@/types/learning';
 
 const goal: LearnerGoal = {
   hobbyId: 'guitar',
@@ -10,6 +9,15 @@ const goal: LearnerGoal = {
   level: 'beginner',
   dailyMinutes: 20,
 };
+
+const plan = {
+  id: 'generated-plan',
+  hobbyId: 'guitar',
+  title: 'Generated guitar plan',
+  outcome: 'Play a complete song with steady timing.',
+  totalWeeks: 4,
+  techniques: Array.from({ length: 5 }, (_, index) => ({ id: `technique-${index + 1}` })),
+} as LearningPlan;
 
 describe('HttpAIProvider', () => {
   const originalFetch = global.fetch;
@@ -20,12 +28,11 @@ describe('HttpAIProvider', () => {
   });
 
   it('maps the versioned API response to the frontend contract', async () => {
-    const plan = await planRepository.getTemplate(goal);
     const fetchMock = jest.fn<typeof fetch>().mockResolvedValue({
       ok: true,
       json: async () => ({
         data: plan,
-        meta: { requestId: 'request-123', provider: 'mock', fallbackUsed: false },
+        meta: { requestId: 'request-123', provider: 'gemini', fallbackUsed: false },
       }),
     } as Response);
     global.fetch = fetchMock as unknown as typeof fetch;
@@ -48,5 +55,18 @@ describe('HttpAIProvider', () => {
 
     const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
     await expect(provider.generatePlan(goal)).rejects.toThrow('request-456');
+  });
+
+  it('rejects server fallback content instead of presenting fabricated data', async () => {
+    global.fetch = jest.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: plan,
+        meta: { requestId: 'request-789', provider: 'mock', fallbackUsed: true },
+      }),
+    } as Response) as unknown as typeof fetch;
+
+    const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
+    await expect(provider.generatePlan(goal)).rejects.toThrow('live Gemini response');
   });
 });

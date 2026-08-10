@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, ProgressBar } from '@/components/ui';
@@ -20,11 +20,12 @@ export default function GeneratingScreen() {
   const [activeStep, setActiveStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
-  const started = useRef(false);
+  const [attempt, setAttempt] = useState(0);
+  const startedAttempt = useRef(-1);
 
   useEffect(() => {
-    if (!goal || started.current) return;
-    started.current = true;
+    if (!goal || startedAttempt.current === attempt) return;
+    startedAttempt.current = attempt;
     let cancelled = false;
     const timeouts = generationSteps.map((_, index) =>
       setTimeout(() => {
@@ -50,14 +51,21 @@ export default function GeneratingScreen() {
       cancelled = true;
       timeouts.forEach(clearTimeout);
     };
-  }, [goal, setPlan]);
+  }, [attempt, goal, setPlan]);
+
+  const retry = () => {
+    setError('');
+    setReady(false);
+    setActiveStep(0);
+    setAttempt((current) => current + 1);
+  };
 
   if (!goal) {
     return (
       <Page contentStyle={styles.centered}>
         <RobotMascot size="large" />
         <Text style={styles.title}>Tell Nova your goal first</Text>
-        <Button label="Create a goal" onPress={() => router.replace('/')} />
+        <Button label="Create a goal" onPress={() => router.replace('/onboarding' as Href)} />
       </Page>
     );
   }
@@ -111,10 +119,11 @@ export default function GeneratingScreen() {
             <Text style={styles.errorText}>{error}</Text>
           </View>
         ) : null}
+        {error ? <Button label="Retry plan generation" variant="secondary" icon="refresh" onPress={retry} /> : null}
         <Button
           label={ready ? 'Open my learning plan' : 'Preparing your plan…'}
           icon={ready ? 'arrow-forward' : undefined}
-          disabled={!ready}
+          disabled={!ready || Boolean(error)}
           onPress={() => {
             completeOnboarding();
             router.replace('/(tabs)');

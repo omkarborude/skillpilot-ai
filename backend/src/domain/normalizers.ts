@@ -21,7 +21,7 @@ function normalizeResourceType(
   type: TechniqueDraft['resources'][number]['type'],
 ) {
   // Audio is valuable for sound/rhythm learning. It is a poor default for the
-  // other MVP hobbies, particularly chess, so convert accidental AI choices.
+  // other hobbies, particularly chess, so convert accidental model choices.
   if (type === 'audio' && hobbyId !== 'guitar') return 'article' as const;
   return type;
 }

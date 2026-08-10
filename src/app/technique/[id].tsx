@@ -28,6 +28,7 @@ export default function TechniqueDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const plan = useJourneyStore((state) => state.plan);
+  const goal = useJourneyStore((state) => state.goal);
   const applyReplacement = useJourneyStore((state) => state.applyTechniqueReplacement);
   const setStatus = useJourneyStore((state) => state.setTechniqueStatus);
   const [tab, setTab] = useState<'overview' | 'resources'>('overview');
@@ -35,6 +36,7 @@ export default function TechniqueDetailScreen() {
   const [skipVisible, setSkipVisible] = useState(false);
   const [replacing, setReplacing] = useState<ReplacementMode | null>(null);
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [replaceError, setReplaceError] = useState('');
 
   const technique = useMemo(
     () => plan?.techniques.find((item) => item.id === id),
@@ -54,11 +56,18 @@ export default function TechniqueDetailScreen() {
   const featuredResource = technique.resources[0];
 
   const replace = async (mode: ReplacementMode) => {
+    if (!goal) return;
     setReplacing(mode);
-    const replacement = await aiProvider.replaceTechnique(technique, mode);
-    applyReplacement(replacement);
-    setReplacing(null);
-    setReplaceVisible(false);
+    setReplaceError('');
+    try {
+      const replacement = await aiProvider.replaceTechnique(technique, mode, goal);
+      applyReplacement(replacement);
+      setReplaceVisible(false);
+    } catch {
+      setReplaceError('This technique could not be adjusted. Your current plan is unchanged; please retry.');
+    } finally {
+      setReplacing(null);
+    }
   };
 
   const skip = () => {
@@ -75,7 +84,7 @@ export default function TechniqueDetailScreen() {
         <View style={styles.titleMeta}>
           <StatusBadge status={technique.status} />
           <Pill tone="neutral">{technique.minutes} min</Pill>
-          {technique.replaced ? <Pill>AI adjusted</Pill> : null}
+          {technique.replaced ? <Pill>Adjusted</Pill> : null}
         </View>
         <Text style={styles.title}>{technique.title}</Text>
         <Text style={styles.description}>{technique.description}</Text>
@@ -107,7 +116,7 @@ export default function TechniqueDetailScreen() {
       {selectedResource ? (
         <View style={styles.previewNote}>
           <Ionicons name="checkmark-circle" size={20} color={colors.success} />
-          <Text style={styles.previewText}>Resource opened in the inline lesson state. External media playback will be connected with the backend content catalog.</Text>
+          <Text style={styles.previewText}>{featuredResource?.description ?? 'Use this resource, then return to complete the practice checklist.'}</Text>
           <Pressable onPress={() => setSelectedResource(null)} hitSlop={8}>
             <Ionicons name="close" size={19} color={colors.muted} />
           </Pressable>
@@ -187,6 +196,7 @@ export default function TechniqueDetailScreen() {
         title="What should Nova change?"
         caption="The outcome stays the same; only the route changes."
       >
+        {replaceError ? <Text style={styles.replaceError}>{replaceError}</Text> : null}
         <View style={styles.sheetList}>
           {replacementOptions.map((option) => (
             <Pressable
@@ -276,5 +286,6 @@ const styles = StyleSheet.create({
   replaceTitle: { ...typography.label, color: colors.ink },
   replaceCaption: { ...typography.caption, color: colors.muted },
   replacingText: { ...typography.caption, color: colors.primary, fontWeight: '700' },
+  replaceError: { ...typography.caption, color: colors.danger, padding: spacing.sm, backgroundColor: colors.dangerSoft, borderRadius: radius.md },
   pressed: { opacity: 0.75 },
 });

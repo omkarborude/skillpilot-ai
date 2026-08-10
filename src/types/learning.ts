@@ -61,6 +61,13 @@ export type CoachMessage = {
   createdAt: number;
 };
 
+export type PracticeSession = {
+  id: string;
+  techniqueId: string;
+  minutes: number;
+  completedAt: number;
+};
+
 export type ReplacementMode = 'simpler' | 'shorter' | 'different';
 
 export type Achievement = {

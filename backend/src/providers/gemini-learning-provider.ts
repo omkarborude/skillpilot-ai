@@ -50,7 +50,7 @@ export class GeminiLearningProvider implements LearningProvider {
             ) as Record<string, unknown>,
           },
         },
-        { timeout: 20_000 },
+        { timeout: 45_000 },
       );
 
       if (!interaction.output_text) throw new ProviderError('Gemini returned an empty response');

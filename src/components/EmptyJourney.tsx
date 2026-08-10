@@ -1,11 +1,19 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
+import { useAuthStore } from '@/store/authStore';
 import { colors, spacing, typography } from '@/theme/tokens';
 import { RobotMascot } from './RobotMascot';
 import { Button, Card } from './ui';
 
 export function EmptyJourney() {
   const router = useRouter();
+  const restartOnboarding = useAuthStore((state) => state.restartOnboarding);
+
+  const createLearningPlan = () => {
+    restartOnboarding();
+    router.replace('/onboarding' as Href);
+  };
+
   return (
     <Card style={styles.card}>
       <RobotMascot size="large" />
@@ -13,7 +21,7 @@ export function EmptyJourney() {
         <Text style={styles.title}>Your focused plan starts here</Text>
         <Text style={styles.caption}>Create one goal and Nova will turn it into 5–8 techniques.</Text>
       </View>
-      <Button label="Create learning plan" onPress={() => router.replace('/')} />
+      <Button label="Create learning plan" onPress={createLearningPlan} />
     </Card>
   );
 }

@@ -3,19 +3,19 @@ import { describe, it } from 'node:test';
 import request from 'supertest';
 import { createApp } from '../app.js';
 import type { AppConfig } from '../config.js';
-import { MockLearningProvider } from '../providers/mock-learning-provider.js';
+import { FixtureLearningProvider } from './fixture-learning-provider.js';
 import { LearningService } from '../services/learning-service.js';
 
 const config: AppConfig = {
-  aiProvider: 'mock',
+  aiProvider: 'gemini',
   geminiModel: 'gemini-3.5-flash-lite',
   allowedOrigins: '*',
   port: 3001,
 };
-const mockProvider = new MockLearningProvider();
+const testProvider = new FixtureLearningProvider();
 const app = createApp({
   config,
-  learningService: new LearningService(mockProvider, mockProvider),
+  learningService: new LearningService(testProvider),
   logRequests: false,
 });
 
@@ -32,7 +32,7 @@ describe('SkillPilot API', () => {
     const response = await request(app).get('/api/v1/health').expect(200);
 
     assert.equal(response.body.data.status, 'ok');
-    assert.equal(response.body.data.provider, 'mock');
+    assert.equal(response.body.data.provider, 'gemini');
     assert.equal(typeof response.body.meta.requestId, 'string');
     assert.equal(response.headers['x-powered-by'], undefined);
   });
@@ -62,7 +62,7 @@ describe('SkillPilot API', () => {
         technique.resources.every((resource) => resource.type !== 'audio'),
       ),
     );
-    assert.equal(response.body.meta.provider, 'mock');
+    assert.equal(response.body.meta.provider, 'gemini');
     assert.equal(response.body.meta.fallbackUsed, false);
   });
 

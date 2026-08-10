@@ -32,7 +32,7 @@ export function TechniqueCard({ technique, onPress }: { technique: Technique; on
           <Text style={styles.meta}>{technique.minutes} min</Text>
           <Text style={styles.dot}>•</Text>
           <Text style={styles.meta}>{technique.resources.length} resources</Text>
-          {technique.replaced ? <Text style={styles.replaced}>AI adjusted</Text> : null}
+          {technique.replaced ? <Text style={styles.replaced}>Adjusted</Text> : null}
         </View>
       </View>
       {!locked ? <Ionicons name="chevron-forward" size={20} color={colors.muted} /> : null}

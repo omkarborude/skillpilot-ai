@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import type { LearnerGoal } from '../contracts.js';
 import type { LearningProvider } from '../providers/learning-provider.js';
-import { MockLearningProvider } from '../providers/mock-learning-provider.js';
 import { LearningService } from '../services/learning-service.js';
 
 const goal: LearnerGoal = {
@@ -26,20 +25,9 @@ const failingProvider: LearningProvider = {
   },
 };
 
-describe('LearningService fallback', () => {
-  it('uses deterministic data when the external model fails', async () => {
-    const fallback = new MockLearningProvider();
-    const service = new LearningService(failingProvider, fallback);
-    const originalError = console.error;
-    console.error = () => undefined;
-
-    try {
-      const result = await service.generatePlan(goal);
-      assert.equal(result.provider, 'mock');
-      assert.equal(result.fallbackUsed, true);
-      assert.equal(result.data.techniques.length, 7);
-    } finally {
-      console.error = originalError;
-    }
+describe('LearningService', () => {
+  it('surfaces provider failures instead of returning fabricated learning data', async () => {
+    const service = new LearningService(failingProvider);
+    await assert.rejects(service.generatePlan(goal), /quota exceeded/);
   });
 });

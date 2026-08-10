@@ -94,6 +94,16 @@ export const CoachRequestSchema = z.object({
   prompt: z.string().trim().min(2).max(600),
   technique: TechniqueSchema.optional(),
   goal: LearnerGoalSchema.optional(),
+  journeyProgress: z.number().int().min(0).max(100).optional(),
+  recentMessages: z
+    .array(
+      z.object({
+        role: z.enum(['learner', 'coach']),
+        content: z.string().trim().min(1).max(600),
+      }),
+    )
+    .max(8)
+    .optional(),
 });
 
 export type LearnerGoal = z.infer<typeof LearnerGoalSchema>;

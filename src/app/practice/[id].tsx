@@ -62,7 +62,7 @@ export default function PracticeScreen() {
   const completePractice = () => {
     setRunning(false);
     setStatus(technique.id, 'completed');
-    recordPractice(Math.max(1, Math.ceil((totalSeconds - secondsLeft) / 60)));
+    recordPractice(Math.max(1, Math.ceil((totalSeconds - secondsLeft) / 60)), technique.id);
     setCompleteVisible(true);
   };
 
