@@ -33,9 +33,9 @@ export class HttpAIProvider implements AIPlanProvider {
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
-  private async post<T>(path: string, body: unknown): Promise<T> {
+  private async post<T>(path: string, body: unknown, timeoutMs = 60_000): Promise<T> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25_000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(`${this.baseUrl}${path}`, {
@@ -44,23 +44,29 @@ export class HttpAIProvider implements AIPlanProvider {
         body: JSON.stringify(body),
         signal: controller.signal,
       });
-      const payload = (await response.json()) as ApiEnvelope<T> & ApiErrorEnvelope;
+      const payload = await response.json().catch(() => null) as (ApiEnvelope<T> & ApiErrorEnvelope) | null;
 
       if (!response.ok) {
-        const requestId = payload.error?.requestId ? ` (${payload.error.requestId})` : '';
-        throw new Error(`${payload.error?.message ?? 'SkillPilot API request failed'}${requestId}`);
+        const requestId = payload?.error?.requestId ? ` (${payload.error.requestId})` : '';
+        throw new Error(`${payload?.error?.message ?? `Learning service returned ${response.status}`}${requestId}`);
       }
+      if (!payload) throw new Error('The learning service returned an invalid response.');
       if (payload.meta?.fallbackUsed || payload.meta?.provider !== 'gemini') {
         throw new Error('The learning service did not return a live Gemini response. Please retry.');
       }
       return payload.data;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('The learning service timed out. Please retry.');
+      }
+      throw error;
     } finally {
       clearTimeout(timeout);
     }
   }
 
   async generatePlan(goal: LearnerGoal): Promise<LearningPlan> {
-    const plan = await this.post<LearningPlan>('/api/v1/plans/generate', { goal });
+    const plan = await this.post<LearningPlan>('/api/v1/plans/generate', { goal }, 90_000);
     assertPlan(plan);
     return plan;
   }
@@ -72,7 +78,7 @@ export class HttpAIProvider implements AIPlanProvider {
       technique: context.technique,
       journeyProgress: context.journeyProgress,
       recentMessages: context.recentMessages.slice(-8).map(({ role, content }) => ({ role, content })),
-    });
+    }, 30_000);
     if (!result.answer?.trim()) throw new Error('API returned an empty coach response');
     return result.answer;
   }
