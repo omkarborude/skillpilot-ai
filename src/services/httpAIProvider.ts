@@ -1,30 +1,13 @@
 import type { AIPlanProvider, CoachContext } from './aiProvider';
 import type { LearnerGoal, LearningPlan, ReplacementMode, Technique } from '@/types/learning';
-
-type ApiEnvelope<T> = {
-  data: T;
-  meta: {
-    requestId: string;
-    provider: string;
-    fallbackUsed: boolean;
-  };
-};
-
-type ApiErrorEnvelope = {
-  error?: {
-    code?: string;
-    message?: string;
-    requestId?: string;
-  };
-};
-
-function assertPlan(value: unknown): asserts value is LearningPlan {
-  if (!value || typeof value !== 'object') throw new Error('API returned an invalid plan');
-  const candidate = value as Partial<LearningPlan>;
-  if (!candidate.id || !Array.isArray(candidate.techniques) || candidate.techniques.length < 5) {
-    throw new Error('API returned an invalid plan');
-  }
-}
+import { type z } from 'zod';
+import {
+  ApiErrorEnvelopeSchema,
+  CoachResponseSchema,
+  LearningPlanSchema,
+  TechniqueSchema,
+  apiEnvelopeSchema,
+} from './apiSchemas';
 
 export class HttpAIProvider implements AIPlanProvider {
   private readonly baseUrl: string;
@@ -33,7 +16,7 @@ export class HttpAIProvider implements AIPlanProvider {
     this.baseUrl = baseUrl.replace(/\/$/, '');
   }
 
-  private async post<T>(path: string, body: unknown): Promise<T> {
+  private async post<T>(path: string, body: unknown, dataSchema: z.ZodType<T>): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 25_000);
 
@@ -44,40 +27,42 @@ export class HttpAIProvider implements AIPlanProvider {
         body: JSON.stringify(body),
         signal: controller.signal,
       });
-      const payload = (await response.json()) as ApiEnvelope<T> & ApiErrorEnvelope;
+      const payload: unknown = await response.json();
 
       if (!response.ok) {
-        const requestId = payload.error?.requestId ? ` (${payload.error.requestId})` : '';
-        throw new Error(`${payload.error?.message ?? 'SkillPilot API request failed'}${requestId}`);
+        const errorPayload = ApiErrorEnvelopeSchema.safeParse(payload);
+        const error = errorPayload.success ? errorPayload.data.error : undefined;
+        const requestId = error?.requestId ? ` (${error.requestId})` : '';
+        throw new Error(`${error?.message ?? 'SkillPilot API request failed'}${requestId}`);
       }
-      if (payload.meta?.fallbackUsed || payload.meta?.provider !== 'gemini') {
+
+      const envelope = apiEnvelopeSchema(dataSchema).safeParse(payload);
+      if (!envelope.success) throw new Error('API returned an invalid response');
+      if (envelope.data.meta.fallbackUsed || envelope.data.meta.provider !== 'gemini') {
         throw new Error('The learning service did not return a live Gemini response. Please retry.');
       }
-      return payload.data;
+      return envelope.data.data;
     } finally {
       clearTimeout(timeout);
     }
   }
 
   async generatePlan(goal: LearnerGoal): Promise<LearningPlan> {
-    const plan = await this.post<LearningPlan>('/api/v1/plans/generate', { goal });
-    assertPlan(plan);
-    return plan;
+    return this.post('/api/v1/plans/generate', { goal }, LearningPlanSchema);
   }
 
   async answerCoach(prompt: string, context: CoachContext): Promise<string> {
-    const result = await this.post<{ answer: string }>('/api/v1/coach/respond', {
+    const result = await this.post('/api/v1/coach/respond', {
       prompt,
       goal: context.goal,
       technique: context.technique,
       journeyProgress: context.journeyProgress,
       recentMessages: context.recentMessages.slice(-8).map(({ role, content }) => ({ role, content })),
-    });
-    if (!result.answer?.trim()) throw new Error('API returned an empty coach response');
+    }, CoachResponseSchema);
     return result.answer;
   }
 
   replaceTechnique(technique: Technique, mode: ReplacementMode, goal: LearnerGoal): Promise<Technique> {
-    return this.post<Technique>('/api/v1/techniques/replace', { technique, mode, goal });
+    return this.post('/api/v1/techniques/replace', { technique, mode, goal }, TechniqueSchema);
   }
 }

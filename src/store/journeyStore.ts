@@ -21,6 +21,14 @@ type JourneyState = {
   resetJourney: () => void;
 };
 
+type LegacyLearningResource = {
+  id: string;
+  type: Technique['resources'][number]['type'];
+  title?: string;
+  searchQuery?: string;
+  description: string;
+};
+
 const createInitialCoachMessages = (): CoachMessage[] => [
   {
     id: 'coach-welcome',
@@ -29,6 +37,51 @@ const createInitialCoachMessages = (): CoachMessage[] => [
     createdAt: Date.now(),
   },
 ];
+
+export function migrateJourneyState(persisted: unknown, version: number): JourneyState {
+  let state = persisted as Partial<JourneyState>;
+
+  if (version < 2) {
+    state = {
+      ...state,
+      practiceMinutes: 0,
+      streakDays: 0,
+      xp: 0,
+      practiceSessions: [],
+      coachMessages: createInitialCoachMessages(),
+    };
+  }
+
+  if (version < 3 && state.plan) {
+    const hobbyName = state.goal?.customHobby ?? state.goal?.hobbyName ?? state.plan.title;
+    state = {
+      ...state,
+      plan: {
+        ...state.plan,
+        techniques: state.plan.techniques.map((technique) => ({
+          ...technique,
+          resources: technique.resources.map((currentResource) => {
+            const resource = currentResource as LegacyLearningResource;
+            if (resource.type === 'practice') {
+              return { id: resource.id, type: 'practice' as const, description: resource.description };
+            }
+
+            return {
+              id: resource.id,
+              type: resource.type,
+              searchQuery:
+                resource.searchQuery?.trim() ||
+                `${hobbyName} ${resource.title ?? technique.shortTitle}`.trim(),
+              description: resource.description,
+            };
+          }),
+        })),
+      },
+    };
+  }
+
+  return state as JourneyState;
+}
 
 export const useJourneyStore = create<JourneyState>()(
   persist(
@@ -95,21 +148,8 @@ export const useJourneyStore = create<JourneyState>()(
     {
       name: 'skillpilot-journey-v1',
       storage: createJSONStorage(() => deviceStorage),
-      version: 2,
-      migrate: (persisted, version) => {
-        const state = persisted as Partial<JourneyState>;
-        if (version < 2) {
-          return {
-            ...state,
-            practiceMinutes: 0,
-            streakDays: 0,
-            xp: 0,
-            practiceSessions: [],
-            coachMessages: createInitialCoachMessages(),
-          } as JourneyState;
-        }
-        return persisted as JourneyState;
-      },
+      version: 3,
+      migrate: migrateJourneyState,
       partialize: ({ goal, plan, practiceMinutes, streakDays, xp, practiceSessions, coachMessages }) => ({
         goal,
         plan,

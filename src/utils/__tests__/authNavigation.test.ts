@@ -19,7 +19,7 @@ describe('getAuthRedirect', () => {
     })).toBe('/login');
   });
 
-  it('allows OTP access for a stored dummy phone number', () => {
+  it('allows device-code access for a stored phone number', () => {
     expect(getAuthRedirect({
       hydrated: true,
       isAuthenticated: false,

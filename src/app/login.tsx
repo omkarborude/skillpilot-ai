@@ -36,7 +36,7 @@ export default function LoginScreen() {
         </View>
         <Text style={styles.heroTitle}>Welcome to SkillPilot.</Text>
         <Text style={styles.heroCaption}>
-          Sign in to keep your focused learning journey available on this device.
+          Continue to the learning journey saved on this device.
         </Text>
       </LinearGradient>
 
@@ -62,9 +62,9 @@ export default function LoginScreen() {
           onSubmitEditing={continueToOtp}
         />
         <Button label="Continue" icon="arrow-forward" onPress={continueToOtp} />
-        <View style={styles.demoNote}>
+        <View style={styles.localNote}>
           <Ionicons name="information-circle-outline" size={18} color={colors.muted} />
-          <Text style={styles.demoText}>Your phone number remains on this device.</Text>
+          <Text style={styles.localText}>Your phone number remains on this device.</Text>
         </View>
       </Card>
     </Page>
@@ -82,6 +82,6 @@ const styles = StyleSheet.create({
   copy: { gap: spacing.xxs },
   title: { ...typography.heading, color: colors.ink },
   caption: { ...typography.body, color: colors.muted },
-  demoNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  demoText: { ...typography.caption, color: colors.muted, flex: 1 },
+  localNote: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  localText: { ...typography.caption, color: colors.muted, flex: 1 },
 });

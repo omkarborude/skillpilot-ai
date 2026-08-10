@@ -14,14 +14,19 @@ export type LearnerGoal = {
 export type TechniqueStatus = 'completed' | 'in_progress' | 'locked' | 'skipped';
 export type ResourceType = 'video' | 'audio' | 'article' | 'practice';
 
-export type LearningResource = {
+type LearningResourceBase = {
   id: string;
-  title: string;
-  type: ResourceType;
-  durationLabel: string;
   description: string;
-  url?: string;
 };
+
+export type LearningResource =
+  | (LearningResourceBase & {
+      type: Exclude<ResourceType, 'practice'>;
+      searchQuery: string;
+    })
+  | (LearningResourceBase & {
+      type: 'practice';
+    });
 
 export type PracticeTask = {
   id: string;

@@ -27,7 +27,7 @@ export default function LearningPlanScreen() {
   return (
     <Page tabScreen contentStyle={styles.page}>
       <SectionHeading
-        eyebrow="Your focused roadmap"
+        eyebrow="Your roadmap"
         title={plan.title}
         caption={plan.outcome}
       />
@@ -38,7 +38,7 @@ export default function LearningPlanScreen() {
             <Ionicons name="trophy" size={24} color={colors.warning} />
           </View>
           <View style={styles.summaryCopy}>
-            <Text style={styles.summaryTitle}>{progress}% of the journey resolved</Text>
+            <Text style={styles.summaryTitle}>{progress}% progress</Text>
             <Text style={styles.summaryCaption}>{counts.completed} completed • {counts.skipped} skipped • {counts.total} total</Text>
           </View>
           <Pill>{plan.totalWeeks} weeks</Pill>

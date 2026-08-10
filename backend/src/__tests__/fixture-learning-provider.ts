@@ -9,22 +9,21 @@ import { normalizePlanDraft, normalizeReplacement } from '../domain/normalizers.
 import type { LearningProvider } from '../providers/learning-provider.js';
 
 const resourceCopy = {
-  video: { title: 'Visual guide', durationLabel: '6 min', description: 'See the movement or setup before practicing it.' },
-  audio: { title: 'Listening guide', durationLabel: '3 min', description: 'Hear the target rhythm or sound at two useful speeds.' },
-  article: { title: 'Concept guide', durationLabel: '5 min read', description: 'Review the principle through a concise explanation.' },
-  practice: { title: 'Guided practice', durationLabel: '10 min', description: 'Apply the technique and capture one observation.' },
+  video: { searchQuery: 'beginner technique visual walkthrough', description: 'Look for a clear view of the movement or setup before practicing it.' },
+  article: { searchQuery: 'beginner technique concept guide', description: 'Look for a concise explanation with practical examples.' },
+  practice: { description: 'Apply the technique and capture one observation.' },
 } as const;
 
 function createPlanDraft(goal: LearnerGoal): PlanDraft {
   const hobbyName = goal.customHobby ?? goal.hobbyName;
   return {
     title: `${hobbyName} foundations`,
-    outcome: `Build confidence through a focused ${hobbyName.toLowerCase()} practice sequence.`,
+    outcome: `Build confidence through a practical ${hobbyName.toLowerCase()} practice sequence.`,
     totalWeeks: 4,
     techniques: Array.from({ length: 5 }, (_, index) => ({
       title: `${hobbyName} technique ${index + 1}`,
       shortTitle: `Technique ${index + 1}`,
-      description: `A focused step for improving ${hobbyName.toLowerCase()} through deliberate practice.`,
+      description: `A practical step for improving ${hobbyName.toLowerCase()} through deliberate practice.`,
       whyItMatters: 'This step builds a reusable foundation for the next technique in the sequence.',
       minutes: Math.min(goal.dailyMinutes, 20),
       resources: [

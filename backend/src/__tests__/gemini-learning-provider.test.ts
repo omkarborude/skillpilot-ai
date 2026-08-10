@@ -8,7 +8,7 @@ describe('sanitizeGeminiSchema', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       type: 'object',
       properties: {
-        title: { type: 'string', minLength: 3, maxLength: 100 },
+        title: { type: 'string', minLength: 3, maxLength: 100, format: 'uri' },
         techniques: {
           type: 'array',
           minItems: 5,

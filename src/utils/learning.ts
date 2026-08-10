@@ -3,11 +3,11 @@ import { LearningPlan, Technique, TechniqueStatus } from '@/types/learning';
 export function calculateJourneyProgress(plan: LearningPlan | null): number {
   if (!plan || plan.techniques.length === 0) return 0;
 
-  const resolved = plan.techniques.filter(
+  const progressed = plan.techniques.filter(
     ({ status }) => status === 'completed' || status === 'skipped',
   ).length;
 
-  return Math.round((resolved / plan.techniques.length) * 100);
+  return Math.round((progressed / plan.techniques.length) * 100);
 }
 
 export function calculateMasteryProgress(plan: LearningPlan | null): number {

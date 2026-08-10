@@ -16,14 +16,30 @@ function slugify(value: string): string {
     .slice(0, 48);
 }
 
-function normalizeResourceType(
-  hobbyId: LearnerGoal['hobbyId'],
-  type: TechniqueDraft['resources'][number]['type'],
+function normalizeResource(
+  goal: LearnerGoal,
+  draft: TechniqueDraft,
+  resource: TechniqueDraft['resources'][number],
 ) {
   // Audio is valuable for sound/rhythm learning. It is a poor default for the
-  // other hobbies, particularly chess, so convert accidental model choices.
-  if (type === 'audio' && hobbyId !== 'guitar') return 'article' as const;
-  return type;
+  // other hobbies, particularly chess, so replace accidental model choices
+  // with an honest concept-search recommendation.
+  if (resource.type === 'audio' && goal.hobbyId !== 'guitar') {
+    return {
+      type: 'article' as const,
+      searchQuery: `${goal.customHobby ?? goal.hobbyName} ${draft.shortTitle} beginner guide`,
+      description: 'Look for a concise explanation with examples you can apply during practice.',
+    };
+  }
+  if (resource.type === 'practice') {
+    return { type: 'practice' as const, description: resource.description };
+  }
+  if (!resource.searchQuery) throw new Error('External resource is missing a search query');
+  return {
+    type: resource.type,
+    searchQuery: resource.searchQuery,
+    description: resource.description,
+  };
 }
 
 export function normalizeTechniqueDraft(
@@ -40,9 +56,8 @@ export function normalizeTechniqueDraft(
     minutes: Math.min(goal.dailyMinutes, draft.minutes),
     status: order === 1 ? 'in_progress' : 'locked',
     resources: draft.resources.map((resource, index) => ({
-      ...resource,
+      ...normalizeResource(goal, draft, resource),
       id: `${baseId}-resource-${index + 1}`,
-      type: normalizeResourceType(goal.hobbyId, resource.type),
     })),
     practiceTasks: draft.practiceTasks.map((label, index) => ({
       id: `${baseId}-task-${index + 1}`,

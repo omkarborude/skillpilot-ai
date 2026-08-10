@@ -18,7 +18,7 @@ export function EmptyJourney() {
     <Card style={styles.card}>
       <RobotMascot size="large" />
       <View style={styles.copy}>
-        <Text style={styles.title}>Your focused plan starts here</Text>
+        <Text style={styles.title}>Your learning plan starts here</Text>
         <Text style={styles.caption}>Create one goal and Nova will turn it into 5–8 techniques.</Text>
       </View>
       <Button label="Create learning plan" onPress={createLearningPlan} />

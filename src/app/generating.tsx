@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Redirect, type Href, useRouter } from 'expo-router';
 import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
-import { Button, Card, Pill, ProgressBar } from '@/components/ui';
+import { Button, Card, Pill } from '@/components/ui';
 import { generationSteps } from '@/constants/product';
 import { aiProvider } from '@/services/aiProvider';
 import { useAuthStore } from '@/store/authStore';
@@ -18,7 +18,6 @@ export default function GeneratingScreen() {
   const setPlan = useJourneyStore((state) => state.setPlan);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
-  const [activeStep, setActiveStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
@@ -28,16 +27,10 @@ export default function GeneratingScreen() {
     if (!isAuthenticated || !goal || startedAttempt.current === attempt) return;
     startedAttempt.current = attempt;
     let cancelled = false;
-    const timeouts = generationSteps.map((_, index) =>
-      setTimeout(() => {
-        if (!cancelled) setActiveStep(index + 1);
-      }, 550 * (index + 1)),
-    );
 
     const generate = async () => {
       try {
         const plan = await aiProvider.generatePlan(goal);
-        await new Promise<void>((resolve) => setTimeout(resolve, generationSteps.length * 550 + 250));
         if (!cancelled) {
           setPlan(plan);
           setReady(true);
@@ -50,14 +43,12 @@ export default function GeneratingScreen() {
 
     return () => {
       cancelled = true;
-      timeouts.forEach(clearTimeout);
     };
   }, [attempt, goal, isAuthenticated, setPlan]);
 
   const retry = () => {
     setError('');
     setReady(false);
-    setActiveStep(0);
     setAttempt((current) => current + 1);
   };
 
@@ -75,48 +66,38 @@ export default function GeneratingScreen() {
     );
   }
 
-  const progress = ready ? 100 : Math.round((activeStep / generationSteps.length) * 92);
-
   return (
     <Page dark contentStyle={styles.page}>
       <LinearGradient colors={[colors.night, '#241657', '#17103D']} style={StyleSheet.absoluteFill} />
       <View style={styles.hero}>
         <RobotMascot size="large" />
-        <Pill tone={ready ? 'green' : 'purple'}>{ready ? 'Plan ready' : 'Nova is thinking'}</Pill>
+        <Pill tone={ready ? 'green' : 'purple'}>{ready ? 'Plan ready' : 'Preparing your plan'}</Pill>
         <Text style={styles.title}>{ready ? `Your ${goal.hobbyName} path is ready.` : `Building a plan around you.`}</Text>
         <Text style={styles.caption}>
           {ready
-            ? 'A focused sequence, the right media for each skill, and a realistic next action.'
+            ? 'A practical sequence, recommended searches, and a realistic next action.'
             : `${goal.dailyMinutes} minutes a day • ${goal.level.replace('_', ' ')} • ${goal.hobbyName}`}
         </Text>
       </View>
 
       <Card style={styles.stepsCard}>
-        <View style={styles.progressRow}>
-          <Text style={styles.progressLabel}>Personalizing your roadmap</Text>
-          <Text style={styles.progressValue}>{progress}%</Text>
-        </View>
-        <ProgressBar value={progress} />
+        <Text style={styles.progressLabel}>{ready ? 'Included in your plan' : 'What Nova is preparing'}</Text>
         <View style={styles.steps}>
-          {generationSteps.map((step, index) => {
-            const complete = index < activeStep || ready;
-            const active = index === activeStep && !ready;
-            return (
-              <View key={step.title} style={styles.step}>
-                <View style={[styles.stepIcon, complete && styles.stepIconComplete, active && styles.stepIconActive]}>
-                  <Ionicons
-                    name={complete ? 'checkmark' : active ? 'sparkles' : 'ellipse-outline'}
-                    size={18}
-                    color={complete ? colors.white : active ? colors.primary : colors.muted}
-                  />
-                </View>
-                <View style={styles.stepCopy}>
-                  <Text style={[styles.stepTitle, !complete && !active && styles.stepPending]}>{step.title}</Text>
-                  <Text style={styles.stepCaption}>{step.caption}</Text>
-                </View>
+          {generationSteps.map((step) => (
+            <View key={step.title} style={styles.step}>
+              <View style={[styles.stepIcon, ready && styles.stepIconComplete]}>
+                <Ionicons
+                  name={ready ? 'checkmark' : 'ellipse-outline'}
+                  size={18}
+                  color={ready ? colors.white : colors.muted}
+                />
               </View>
-            );
-          })}
+              <View style={styles.stepCopy}>
+                <Text style={styles.stepTitle}>{step.title}</Text>
+                <Text style={styles.stepCaption}>{step.caption}</Text>
+              </View>
+            </View>
+          ))}
         </View>
         {error ? (
           <View style={styles.errorBox}>
@@ -146,17 +127,13 @@ const styles = StyleSheet.create({
   title: { ...typography.title, color: colors.white, textAlign: 'center', maxWidth: 560 },
   caption: { ...typography.body, color: '#CEC6E8', textAlign: 'center', maxWidth: 560 },
   stepsCard: { gap: spacing.lg, padding: spacing.lg },
-  progressRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   progressLabel: { ...typography.label, color: colors.ink },
-  progressValue: { ...typography.label, color: colors.primary },
   steps: { gap: spacing.md },
   step: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   stepIcon: { width: 36, height: 36, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center', backgroundColor: '#F1F0F4' },
   stepIconComplete: { backgroundColor: colors.success },
-  stepIconActive: { backgroundColor: colors.primarySoft },
   stepCopy: { flex: 1, gap: 2 },
   stepTitle: { ...typography.label, color: colors.ink },
-  stepPending: { color: colors.muted },
   stepCaption: { ...typography.caption, color: colors.muted },
   errorBox: { flexDirection: 'row', gap: spacing.xs, alignItems: 'center', borderRadius: radius.md, backgroundColor: colors.dangerSoft, padding: spacing.sm },
   errorText: { ...typography.caption, color: colors.danger, flex: 1 },

@@ -16,8 +16,35 @@ const plan = {
   title: 'Generated guitar plan',
   outcome: 'Play a complete song with steady timing.',
   totalWeeks: 4,
-  techniques: Array.from({ length: 5 }, (_, index) => ({ id: `technique-${index + 1}` })),
-} as LearningPlan;
+  techniques: Array.from({ length: 5 }, (_, index) => ({
+    id: `technique-${index + 1}`,
+    order: index + 1,
+    title: `Guitar technique ${index + 1}`,
+    shortTitle: `Technique ${index + 1}`,
+    description: 'Practice a clear chord change with slow, deliberate repetitions.',
+    whyItMatters: 'This movement supports smoother transitions in the complete song.',
+    minutes: 15,
+    status: index === 0 ? 'in_progress' as const : 'locked' as const,
+    resources: [
+      {
+        id: `resource-${index + 1}`,
+        type: 'video' as const,
+        searchQuery: 'beginner guitar chord changes slow demonstration',
+        description: 'Look for a close camera angle and a slow demonstration.',
+      },
+      {
+        id: `practice-${index + 1}`,
+        type: 'practice' as const,
+        description: 'Use the timer and checklist to apply this technique.',
+      },
+    ],
+    practiceTasks: [
+      { id: `task-${index + 1}-1`, label: 'Place each finger carefully' },
+      { id: `task-${index + 1}-2`, label: 'Repeat the change five times' },
+    ],
+    keyPoints: ['Keep the hand relaxed', 'Move one finger at a time'],
+  })),
+} satisfies LearningPlan;
 
 describe('HttpAIProvider', () => {
   const originalFetch = global.fetch;
@@ -37,10 +64,10 @@ describe('HttpAIProvider', () => {
     } as Response);
     global.fetch = fetchMock as unknown as typeof fetch;
 
-    const provider = new HttpAIProvider('https://skillpilot-api.vercel.app/');
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com/');
     await expect(provider.generatePlan(goal)).resolves.toEqual(plan);
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://skillpilot-api.vercel.app/api/v1/plans/generate',
+      'https://skillpilot-api.onrender.com/api/v1/plans/generate',
       expect.objectContaining({ method: 'POST', body: JSON.stringify({ goal }) }),
     );
   });
@@ -53,7 +80,7 @@ describe('HttpAIProvider', () => {
       }),
     } as Response) as unknown as typeof fetch;
 
-    const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com');
     await expect(provider.generatePlan(goal)).rejects.toThrow('request-456');
   });
 
@@ -66,7 +93,22 @@ describe('HttpAIProvider', () => {
       }),
     } as Response) as unknown as typeof fetch;
 
-    const provider = new HttpAIProvider('https://skillpilot-api.vercel.app');
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com');
     await expect(provider.generatePlan(goal)).rejects.toThrow('live Gemini response');
+  });
+
+  it('rejects a resource recommendation without a usable search query', async () => {
+    const invalidPlan = structuredClone(plan);
+    delete (invalidPlan.techniques[0]?.resources[0] as { searchQuery?: string }).searchQuery;
+    global.fetch = jest.fn<typeof fetch>().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: invalidPlan,
+        meta: { requestId: 'request-invalid-resource', provider: 'gemini', fallbackUsed: false },
+      }),
+    } as Response) as unknown as typeof fetch;
+
+    const provider = new HttpAIProvider('https://skillpilot-api.onrender.com');
+    await expect(provider.generatePlan(goal)).rejects.toThrow('invalid response');
   });
 });
