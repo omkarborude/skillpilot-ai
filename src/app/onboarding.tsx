@@ -7,12 +7,14 @@ import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, SectionHeading, SelectionCard, TextField } from '@/components/ui';
 import { dailyMinuteOptions, goalOptions, hobbyOptions, levelOptions } from '@/constants/product';
+import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { GoalReason, HobbyId, LearnerGoal, SkillLevel } from '@/types/learning';
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentPlan = useJourneyStore((state) => state.plan);
   const setGoal = useJourneyStore((state) => state.setGoal);
   const [hobbyId, setHobbyId] = useState<HobbyId>('guitar');
@@ -48,6 +50,12 @@ export default function OnboardingScreen() {
     const goal = buildGoal();
     if (!goal) return;
     setGoal(goal);
+
+    if (!isAuthenticated) {
+      router.push('/login');
+      return;
+    }
+
     router.push('/generating');
   };
 
