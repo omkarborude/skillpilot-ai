@@ -64,7 +64,10 @@ export const LearningPlanSchema = z.object({
   techniques: z.array(TechniqueSchema).min(5).max(8),
 });
 
-const DraftResourceSchema = LearningResourceSchema.omit({ id: true });
+const DraftResourceSchema = LearningResourceSchema.omit({
+  id: true,
+  url: true,
+});
 const DraftTechniqueSchema = TechniqueSchema.omit({
   id: true,
   order: true,
