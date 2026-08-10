@@ -1,55 +1,65 @@
 # SkillPilot
 
-SkillPilot turns one hobby goal into a focused 5–8 technique learning journey. It recommends the right medium for each technique, gives the learner one clear next action, supports complete, skip, and plan-adaptation decisions, and persists progress locally.
+SkillPilot is a small learning app for hobbies. A user picks a goal and the app creates a focused plan with techniques, resources, and practice tasks.
 
-## Product scope
+## Features
 
-The product contains nine primary screens:
+- Demo phone number and numeric access code
+- Personal learning plans
+- Technique details and learning resources
+- Practice timer and checklist
+- AI coach
+- Progress tracking
+- Local data storage
 
-1. Create Goal
-2. Plan Generation
-3. Dashboard
-4. Learning Plan
-5. Technique Detail
-6. Practice
-7. Coach
-8. Progress
-9. Profile
+## Frontend
 
-Today’s plan, resource preview, lesson replacement, achievements, and confirmations are sections or responsive sheets—not separate routes. Signup, social/community, leaderboards, subscription, notifications, generic settings, and voice/camera coaching are excluded because they do not improve the assignment’s core learning loop.
+The app uses Expo, React Native, TypeScript, and Expo Router. It runs on Android, iOS, and the web.
 
-## Stack
+State is managed with Zustand. Data is stored in IndexedDB on the web and AsyncStorage on mobile.
 
-- Expo SDK 57, React Native 0.86, React 19.2, strict TypeScript
-- Expo Router for Android, iOS, and responsive web
-- Zustand with IndexedDB on web and AsyncStorage on native for persisted journey state
-- An HTTP provider backed by Gemini for plans, adaptations, and Coach responses
-- Express 5 + Zod backend with validated Gemini structured output
-- React Native StyleSheet and design tokens; no heavyweight chart/UI framework
-- Jest, Node test runner, React Native Testing Library, ESLint, TypeScript, and GitHub Actions
-
-See [the architecture brief](docs/ARCHITECTURE.md) and [backend architecture](docs/BACKEND_ARCHITECTURE.md) for boundaries, contracts, failure behavior, and deployment decisions.
-
-## Run locally
+### Run the app
 
 ```bash
 npm install
+cp .env.example .env
 npm run start
 ```
 
-Open Android, iOS, or web from the Expo terminal and create a goal-specific plan.
+Set the backend URL in `.env`:
 
-Run the API separately:
+```env
+EXPO_PUBLIC_API_URL=http://localhost:3001
+```
+
+## Backend
+
+The backend is an Express API written in TypeScript. It uses Gemini to create plans, replace techniques, and answer coach questions. Gemini responses are checked with Zod before they are sent to the app.
+
+### Run the API
 
 ```bash
 cd backend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
-Copy `.env.example` to `.env` and set `EXPO_PUBLIC_API_URL=http://localhost:3001`. The app shows a retryable service error when the API is unavailable; it never substitutes fabricated learning content.
+Add a Gemini API key to `backend/.env`:
 
-## Validate
+```env
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_key
+GEMINI_MODEL=gemini-3.5-flash-lite
+ALLOWED_ORIGINS=*
+PORT=3001
+```
+
+The deployed API is currently hosted at `https://skillpilot-api.onrender.com`.
+
+## Checks
+
+Run these before pushing changes:
 
 ```bash
 npm run lint
@@ -60,24 +70,4 @@ npm run backend:typecheck
 npm run backend:test
 ```
 
-## Data and backend
-
-Screens depend on `AIPlanProvider`, implemented by `HttpAIProvider`. The backend uses the configured Gemini model with structured JSON output, keeps `GEMINI_API_KEY` server-side, and validates every generated result before returning it. Provider failures remain visible and retryable instead of being replaced with dummy content.
-
-The API can be hosted on Vercel Hobby for this non-commercial assignment. Import the repository, choose `backend` as the project Root Directory, and set the environment variables described in `backend/README.md`.
-
-## AI-assisted engineering record
-
-AI was used assistively for product ideation, official documentation research, architecture alternatives, and test-case review. The important decisions are explicit in `docs/ARCHITECTURE.md`, business logic is covered by tests, and every dependency has a concrete use. Before submitting, the candidate should complete the self-review checklist below and be able to explain each boundary and tradeoff.
-
-- Run and inspect every primary flow on Android and responsive web.
-- Review the complete PR diff and remove any code that cannot be explained.
-- Test app restart persistence, complete/skip/replace transitions, and reset recovery.
-- Record the Loom from a real device or emulator.
-
-## Design and product references
-
-- Category references: [Oboe](https://oboe.fyi/) and [Wondering](https://wondering.app/)
-- Visual direction: the supplied SkillPilot concept board (purple/lavender palette, rounded cards, AI mascot, compact bottom navigation)
-
-The navigation, screen consolidation, media choices, and learning loop were derived for this assignment rather than copied from either reference.
+More details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/BACKEND_ARCHITECTURE.md](docs/BACKEND_ARCHITECTURE.md).
