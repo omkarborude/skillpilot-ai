@@ -6,7 +6,6 @@ import {
   ReplaceTechniqueRequestSchema,
   type ApiMeta,
 } from './contracts.js';
-import { blueprintCatalog } from './data/blueprints.js';
 import { cors, errorHandler, notFound, parseBody, requestContext } from './http.js';
 import type { LearningService, ServiceResult } from './services/learning-service.js';
 
@@ -38,18 +37,6 @@ export function configureApp(app: Express, dependencies: AppDependencies) {
         version: '1.0.0',
         provider: learningService.providerName,
       },
-      meta: { requestId: response.locals.requestId },
-    });
-  });
-
-  app.get('/api/v1/hobbies', (_request, response) => {
-    response.json({
-      data: Object.entries(blueprintCatalog).map(([id, blueprint]) => ({
-        id,
-        title: blueprint.title,
-        outcome: blueprint.outcome,
-        techniqueCount: blueprint.techniques.length,
-      })),
       meta: { requestId: response.locals.requestId },
     });
   });

@@ -7,25 +7,20 @@ import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, SectionHeading, SelectionCard, TextField } from '@/components/ui';
 import { dailyMinuteOptions, goalOptions, hobbyOptions, levelOptions } from '@/constants/product';
-import { aiProvider } from '@/services/aiProvider';
-import { useAuthStore } from '@/store/authStore';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
 import { GoalReason, HobbyId, LearnerGoal, SkillLevel } from '@/types/learning';
 
-export default function CreateGoalScreen() {
+export default function OnboardingScreen() {
   const router = useRouter();
   const currentPlan = useJourneyStore((state) => state.plan);
   const setGoal = useJourneyStore((state) => state.setGoal);
-  const setPlan = useJourneyStore((state) => state.setPlan);
-  const completeOnboarding = useAuthStore((state) => state.completeOnboarding);
   const [hobbyId, setHobbyId] = useState<HobbyId>('guitar');
   const [customHobby, setCustomHobby] = useState('');
   const [reason, setReason] = useState<GoalReason>('confidence');
   const [level, setLevel] = useState<SkillLevel>('beginner');
   const [dailyMinutes, setDailyMinutes] = useState<number>(20);
   const [error, setError] = useState('');
-  const [loadingDemo, setLoadingDemo] = useState(false);
 
   const selectedHobby = useMemo(
     () => hobbyOptions.find((option) => option.id === hobbyId),
@@ -56,28 +51,11 @@ export default function CreateGoalScreen() {
     router.push('/generating');
   };
 
-  const handleDemo = async () => {
-    setLoadingDemo(true);
-    const goal: LearnerGoal = {
-      hobbyId: 'guitar',
-      hobbyName: 'Guitar',
-      reason: 'confidence',
-      level: 'beginner',
-      dailyMinutes: 20,
-    };
-    const demoPlan = await aiProvider.generatePlan(goal);
-    setGoal(goal);
-    setPlan(demoPlan);
-    completeOnboarding();
-    setLoadingDemo(false);
-    router.replace('/(tabs)');
-  };
-
   return (
     <Page contentStyle={styles.page}>
       <LinearGradient colors={[colors.night, '#2E176E']} style={styles.hero}>
         <View style={styles.heroTopRow}>
-          <Pill tone="green">AI-guided • focused • practical</Pill>
+          <Pill tone="green">PERSONAL • FOCUSED • PRACTICAL</Pill>
           <RobotMascot size="small" />
         </View>
         <Text style={styles.heroTitle}>Learn the right few things—not everything.</Text>
@@ -199,12 +177,6 @@ export default function CreateGoalScreen() {
 
       <View style={styles.actions}>
         <Button label="Build my learning plan" icon="sparkles" onPress={handleCreatePlan} />
-        <Button
-          label="Explore the guitar demo"
-          variant="secondary"
-          loading={loadingDemo}
-          onPress={() => void handleDemo()}
-        />
       </View>
     </Page>
   );

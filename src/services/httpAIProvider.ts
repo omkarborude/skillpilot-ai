@@ -1,4 +1,4 @@
-import type { AIPlanProvider } from './aiProvider';
+import type { AIPlanProvider, CoachContext } from './aiProvider';
 import type { LearnerGoal, LearningPlan, ReplacementMode, Technique } from '@/types/learning';
 
 type ApiEnvelope<T> = {
@@ -50,6 +50,9 @@ export class HttpAIProvider implements AIPlanProvider {
         const requestId = payload.error?.requestId ? ` (${payload.error.requestId})` : '';
         throw new Error(`${payload.error?.message ?? 'SkillPilot API request failed'}${requestId}`);
       }
+      if (payload.meta?.fallbackUsed || payload.meta?.provider !== 'gemini') {
+        throw new Error('The learning service did not return a live Gemini response. Please retry.');
+      }
       return payload.data;
     } finally {
       clearTimeout(timeout);
@@ -62,16 +65,19 @@ export class HttpAIProvider implements AIPlanProvider {
     return plan;
   }
 
-  async answerCoach(prompt: string, technique?: Technique): Promise<string> {
+  async answerCoach(prompt: string, context: CoachContext): Promise<string> {
     const result = await this.post<{ answer: string }>('/api/v1/coach/respond', {
       prompt,
-      technique,
+      goal: context.goal,
+      technique: context.technique,
+      journeyProgress: context.journeyProgress,
+      recentMessages: context.recentMessages.slice(-8).map(({ role, content }) => ({ role, content })),
     });
     if (!result.answer?.trim()) throw new Error('API returned an empty coach response');
     return result.answer;
   }
 
-  replaceTechnique(technique: Technique, mode: ReplacementMode): Promise<Technique> {
-    return this.post<Technique>('/api/v1/techniques/replace', { technique, mode });
+  replaceTechnique(technique: Technique, mode: ReplacementMode, goal: LearnerGoal): Promise<Technique> {
+    return this.post<Technique>('/api/v1/techniques/replace', { technique, mode, goal });
   }
 }

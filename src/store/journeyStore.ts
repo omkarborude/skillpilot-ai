@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { CoachMessage, LearnerGoal, LearningPlan, Technique, TechniqueStatus } from '@/types/learning';
+import { deviceStorage } from '@/services/deviceStorage';
+import { CoachMessage, LearnerGoal, LearningPlan, PracticeSession, Technique, TechniqueStatus } from '@/types/learning';
 import { replaceTechniqueInPlan, updateTechniqueStatus } from '@/utils/learning';
 
 type JourneyState = {
@@ -10,22 +10,23 @@ type JourneyState = {
   practiceMinutes: number;
   streakDays: number;
   xp: number;
+  practiceSessions: PracticeSession[];
   coachMessages: CoachMessage[];
   setGoal: (goal: LearnerGoal) => void;
   setPlan: (plan: LearningPlan) => void;
   setTechniqueStatus: (techniqueId: string, status: TechniqueStatus) => void;
   applyTechniqueReplacement: (technique: Technique) => void;
-  recordPractice: (minutes: number) => void;
+  recordPractice: (minutes: number, techniqueId: string) => void;
   addCoachMessage: (message: CoachMessage) => void;
   resetJourney: () => void;
 };
 
-const initialCoachMessages: CoachMessage[] = [
+const createInitialCoachMessages = (): CoachMessage[] => [
   {
     id: 'coach-welcome',
     role: 'coach',
-    content: 'Hi Omkar! I’m Nova. I can simplify today’s technique, practice it with you, or help replace it if it is not working.',
-    createdAt: 0,
+    content: 'Hi! I’m Nova. I can simplify your current technique, practice it with you, or help find a better approach.',
+    createdAt: Date.now(),
   },
 ];
 
@@ -34,10 +35,11 @@ export const useJourneyStore = create<JourneyState>()(
     (set) => ({
       goal: null,
       plan: null,
-      practiceMinutes: 225,
-      streakDays: 8,
-      xp: 120,
-      coachMessages: initialCoachMessages,
+      practiceMinutes: 0,
+      streakDays: 0,
+      xp: 0,
+      practiceSessions: [],
+      coachMessages: createInitialCoachMessages(),
       setGoal: (goal) => set({ goal }),
       setPlan: (plan) => set({ plan }),
       setTechniqueStatus: (techniqueId, status) =>
@@ -52,8 +54,31 @@ export const useJourneyStore = create<JourneyState>()(
         set((state) => ({
           plan: state.plan ? replaceTechniqueInPlan(state.plan, technique) : null,
         })),
-      recordPractice: (minutes) =>
-        set((state) => ({ practiceMinutes: state.practiceMinutes + minutes })),
+      recordPractice: (minutes, techniqueId) =>
+        set((state) => {
+          const completedAt = Date.now();
+          const session: PracticeSession = {
+            id: `practice-${completedAt}`,
+            techniqueId,
+            minutes,
+            completedAt,
+          };
+          const practiceSessions = [...state.practiceSessions, session];
+          const activeDates = new Set(
+            practiceSessions.map(({ completedAt: timestamp }) => new Date(timestamp).toDateString()),
+          );
+          let streakDays = 0;
+          const cursor = new Date();
+          while (activeDates.has(cursor.toDateString())) {
+            streakDays += 1;
+            cursor.setDate(cursor.getDate() - 1);
+          }
+          return {
+            practiceMinutes: state.practiceMinutes + minutes,
+            practiceSessions,
+            streakDays,
+          };
+        }),
       addCoachMessage: (message) =>
         set((state) => ({ coachMessages: [...state.coachMessages, message] })),
       resetJourney: () =>
@@ -63,18 +88,35 @@ export const useJourneyStore = create<JourneyState>()(
           practiceMinutes: 0,
           streakDays: 0,
           xp: 0,
-          coachMessages: initialCoachMessages,
+          practiceSessions: [],
+          coachMessages: createInitialCoachMessages(),
         }),
     }),
     {
       name: 'skillpilot-journey-v1',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: ({ goal, plan, practiceMinutes, streakDays, xp, coachMessages }) => ({
+      storage: createJSONStorage(() => deviceStorage),
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = persisted as Partial<JourneyState>;
+        if (version < 2) {
+          return {
+            ...state,
+            practiceMinutes: 0,
+            streakDays: 0,
+            xp: 0,
+            practiceSessions: [],
+            coachMessages: createInitialCoachMessages(),
+          } as JourneyState;
+        }
+        return persisted as JourneyState;
+      },
+      partialize: ({ goal, plan, practiceMinutes, streakDays, xp, practiceSessions, coachMessages }) => ({
         goal,
         plan,
         practiceMinutes,
         streakDays,
         xp,
+        practiceSessions,
         coachMessages,
       }),
     },

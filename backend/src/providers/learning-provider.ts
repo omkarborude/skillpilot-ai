@@ -7,7 +7,7 @@ import type {
 } from '../contracts.js';
 
 export interface LearningProvider {
-  readonly name: 'mock' | 'gemini';
+  readonly name: 'gemini';
   generatePlan(goal: LearnerGoal): Promise<LearningPlan>;
   replaceTechnique(input: ReplaceTechniqueRequest): Promise<Technique>;
   answerCoach(input: CoachRequest): Promise<string>;

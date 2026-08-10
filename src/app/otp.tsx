@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { Redirect, type Href, useRouter } from 'expo-router';
 import { Page } from '@/components/Page';
 import { RobotMascot } from '@/components/RobotMascot';
 import { Button, Card, Pill, TextField } from '@/components/ui';
@@ -18,9 +18,14 @@ export default function OtpScreen() {
   const [error, setError] = useState('');
 
   const verifyOtp = () => {
+    if (!useAuthStore.getState().phoneNumber) {
+      router.replace('/login');
+      return;
+    }
+
     const normalizedOtp = otp.replace(/\D/g, '');
     if (!normalizedOtp) {
-      setError('Enter any numeric OTP to continue.');
+      setError('Enter your verification code to continue.');
       return;
     }
 
@@ -28,14 +33,18 @@ export default function OtpScreen() {
     const hasExistingJourney = Boolean(useJourneyStore.getState().plan);
     authenticate();
     if (hasExistingJourney) completeOnboarding();
-    router.replace(hasExistingJourney ? '/(tabs)' : '/');
+    router.replace(hasExistingJourney ? '/(tabs)' : ('/onboarding' as Href));
   };
+
+  if (!phoneNumber) {
+    return <Redirect href="/login" />;
+  }
 
   return (
     <Page keyboardAware contentStyle={styles.page}>
       <View style={styles.mascotWrap}>
         <RobotMascot size="large" />
-        <Pill>TEST VERIFICATION</Pill>
+        <Pill>DEVICE VERIFICATION</Pill>
       </View>
 
       <Card style={styles.card}>
@@ -45,7 +54,7 @@ export default function OtpScreen() {
         <View style={styles.copy}>
           <Text style={styles.title}>Enter the OTP</Text>
           <Text style={styles.caption}>
-            Use any numeric OTP for {phoneNumber ? `••••${phoneNumber.slice(-4)}` : 'this demo number'}.
+            Enter your verification code for {phoneNumber ? `••••${phoneNumber.slice(-4)}` : 'this number'}.
           </Text>
         </View>
         <TextField

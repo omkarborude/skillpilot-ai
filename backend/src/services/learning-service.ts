@@ -14,31 +14,18 @@ export type ServiceResult<T> = {
 };
 
 export class LearningService {
-  constructor(
-    private readonly primary: LearningProvider,
-    private readonly fallback: LearningProvider,
-  ) {}
+  constructor(private readonly primary: LearningProvider) {}
 
   get providerName() {
     return this.primary.name;
   }
 
   private async execute<T>(operation: (provider: LearningProvider) => Promise<T>): Promise<ServiceResult<T>> {
-    try {
-      return {
-        data: await operation(this.primary),
-        provider: this.primary.name,
-        fallbackUsed: false,
-      };
-    } catch (error) {
-      if (this.primary === this.fallback) throw error;
-      console.error('Primary learning provider failed; using deterministic fallback.', error);
-      return {
-        data: await operation(this.fallback),
-        provider: this.fallback.name,
-        fallbackUsed: true,
-      };
-    }
+    return {
+      data: await operation(this.primary),
+      provider: this.primary.name,
+      fallbackUsed: false,
+    };
   }
 
   generatePlan(goal: LearnerGoal): Promise<ServiceResult<LearningPlan>> {

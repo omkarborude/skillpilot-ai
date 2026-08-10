@@ -12,7 +12,6 @@ flowchart TD
     E --> V["Zod validation"]
     V --> S["Learning service"]
     S --> G["Gemini provider"]
-    S -. failure .-> M["Mock provider"]
 ```
 
 ## Project boundary
@@ -20,10 +19,9 @@ flowchart TD
 ```text
 backend/
   src/
-    __tests__/       HTTP and fallback tests
-    data/            curated hobby blueprints
+    __tests__/       HTTP, provider, and failure tests
     domain/          AI-output normalization
-    providers/       mock and Gemini adapters
+    providers/       Gemini adapter and test fixture provider
     services/        provider orchestration
     app.ts            Express composition and routes
     contracts.ts      Zod request/domain schemas
@@ -35,14 +33,13 @@ backend/
   vercel.json
 ```
 
-The API deliberately has no database or authentication in the assignment MVP. Journey progress, notes, and practice sessions are device-owned state in AsyncStorage. The backend performs only operations that need a trusted server: protecting the AI key, validating prompts, generating structured plans, and applying safe fallback behavior.
+The API deliberately has no database. Journey progress, conversation history, and practice sessions are device-owned state in IndexedDB on web and AsyncStorage on native. The backend performs only operations that need a trusted server: protecting the Gemini key, validating prompts, and generating structured learning content.
 
 ## API surface
 
 | Method | Route | Responsibility |
 |---|---|---|
 | `GET` | `/api/v1/health` | Deployment and provider health |
-| `GET` | `/api/v1/hobbies` | Lightweight prepared catalog metadata |
 | `POST` | `/api/v1/plans/generate` | Create a validated 5–8 technique plan |
 | `POST` | `/api/v1/techniques/replace` | Replace one technique while preserving identity/order |
 | `POST` | `/api/v1/coach/respond` | Return one contextual cue and next action |
@@ -72,9 +69,9 @@ Errors use one stable envelope with `code`, `message`, `requestId`, and validati
 - daily-time limits applied server-side;
 - deterministic IDs and dependency order;
 - first technique `in_progress`, remaining techniques `locked`;
-- accidental audio resources converted to reading for non-audio MVP hobbies.
+- accidental audio resources converted to reading for hobbies where audio is inappropriate.
 
-If Gemini times out, exceeds quota, or returns invalid content, `LearningService` repeats the same operation with `MockLearningProvider`. The response tells the client that fallback was used. This makes the demo reliable without hiding the production behavior.
+If Gemini times out, exceeds quota, or returns invalid content, `LearningService` propagates the provider error. The API logs it with a request ID and returns a stable error envelope. The client preserves the learner's input and offers retry without replacing the response with dummy content.
 
 ## Security and operational choices
 
@@ -95,8 +92,6 @@ If Gemini times out, exceeds quota, or returns invalid content, `LearningService
 4. Add `AI_PROVIDER=gemini`, `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.5-flash-lite`, and the web origin in `ALLOWED_ORIGINS`.
 5. Deploy and call `/api/v1/health`.
 6. Put the resulting URL in the Expo build as `EXPO_PUBLIC_API_URL`.
-
-For a quota-independent demo, deploy with `AI_PROVIDER=mock`; no Gemini key is then required.
 
 ## Research references
 

@@ -1,6 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { deviceStorage } from '@/services/deviceStorage';
 
 type AuthState = {
   phoneNumber: string;
@@ -27,7 +27,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'skillpilot-auth-v1',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => deviceStorage),
       partialize: ({ phoneNumber, isAuthenticated, hasStartedLearning }) => ({
         phoneNumber,
         isAuthenticated,

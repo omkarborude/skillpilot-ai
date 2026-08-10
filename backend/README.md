@@ -9,9 +9,7 @@ npm install
 npm run dev
 ```
 
-The default provider is deterministic mock data, so no account or key is required.
-
-To exercise Gemini, provide these environment variables through your shell or Vercel project:
+Provide these environment variables through your shell or deployment project:
 
 ```text
 AI_PROVIDER=gemini
@@ -21,6 +19,8 @@ ALLOWED_ORIGINS=http://localhost:8081
 ```
 
 Never use `EXPO_PUBLIC_` for the Gemini key; Expo public variables are embedded into the client application.
+
+Gemini is the only production provider. If generation fails, the API returns an error with a request ID so the client can offer a safe retry; it does not return a fabricated plan or Coach response.
 
 ## Validation
 

@@ -9,7 +9,13 @@ import { Pill } from '@/components/ui';
 import { aiProvider } from '@/services/aiProvider';
 import { useJourneyStore } from '@/store/journeyStore';
 import { colors, radius, spacing, typography } from '@/theme/tokens';
-import { getActiveTechnique } from '@/utils/learning';
+import type { CoachMessage, CoachRole } from '@/types/learning';
+import { calculateJourneyProgress, getActiveTechnique } from '@/utils/learning';
+
+function createMessage(role: CoachRole, content: string): CoachMessage {
+  const createdAt = Date.now();
+  return { id: `${role}-${createdAt}`, role, content, createdAt };
+}
 
 const quickActions = [
   { label: 'Explain simply', icon: 'bulb-outline' as const, prompt: 'Explain this more simply' },
@@ -22,16 +28,18 @@ export default function CoachScreen() {
   const plan = useJourneyStore((state) => state.plan);
   const messages = useJourneyStore((state) => state.coachMessages);
   const addMessage = useJourneyStore((state) => state.addCoachMessage);
+  const goal = useJourneyStore((state) => state.goal);
   const activeTechnique = getActiveTechnique(plan);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [requestError, setRequestError] = useState('');
   const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollToEnd({ animated: true });
   }, [messages, loading]);
 
-  if (!plan) {
+  if (!plan || !goal) {
     return (
       <Page tabScreen contentStyle={styles.emptyPage}>
         <EmptyJourney />
@@ -44,12 +52,23 @@ export default function CoachScreen() {
     if (!trimmed || loading) return;
     setInput('');
     setLoading(true);
-    const learnerSequence = messages.length + 1;
-    addMessage({ id: `learner-${learnerSequence}`, role: 'learner', content: trimmed, createdAt: learnerSequence });
-    const response = await aiProvider.answerCoach(trimmed, activeTechnique);
-    const coachSequence = learnerSequence + 1;
-    addMessage({ id: `coach-${coachSequence}`, role: 'coach', content: response, createdAt: coachSequence });
-    setLoading(false);
+    setRequestError('');
+    const learnerMessage = createMessage('learner', trimmed);
+    addMessage(learnerMessage);
+    try {
+      const response = await aiProvider.answerCoach(trimmed, {
+        goal,
+        technique: activeTechnique,
+        journeyProgress: calculateJourneyProgress(plan),
+        recentMessages: [...messages, learnerMessage],
+      });
+      addMessage(createMessage('coach', response));
+    } catch {
+      setInput(trimmed);
+      setRequestError('Nova could not respond right now. Your message is saved—retry when the service is available.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -94,6 +113,12 @@ export default function CoachScreen() {
               <View style={styles.typingDot} />
               <View style={styles.typingDot} />
             </View>
+          </View>
+        ) : null}
+        {requestError ? (
+          <View style={styles.errorBox}>
+            <Ionicons name="alert-circle" size={18} color={colors.danger} />
+            <Text style={styles.errorText}>{requestError}</Text>
           </View>
         ) : null}
 
@@ -161,6 +186,8 @@ const styles = StyleSheet.create({
   learnerText: { color: colors.white },
   typingBubble: { flexDirection: 'row', gap: 5, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderRadius: radius.lg, backgroundColor: colors.surface },
   typingDot: { width: 7, height: 7, borderRadius: radius.pill, backgroundColor: colors.primarySoft },
+  errorBox: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs, padding: spacing.sm, borderRadius: radius.md, backgroundColor: colors.dangerSoft },
+  errorText: { ...typography.caption, color: colors.danger, flex: 1 },
   quickLabel: { ...typography.caption, color: colors.muted, fontWeight: '700', letterSpacing: 0.6, marginTop: spacing.xs },
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
   quickAction: { flexGrow: 1, flexBasis: '46%', flexDirection: 'row', alignItems: 'center', gap: spacing.xs, minHeight: 46, paddingHorizontal: spacing.sm, borderRadius: radius.md, borderWidth: 1, borderColor: colors.primarySoft, backgroundColor: colors.surface },

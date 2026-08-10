@@ -19,7 +19,7 @@ export default function LoginScreen() {
   const continueToOtp = () => {
     const normalizedPhone = phone.replace(/\D/g, '');
     if (!normalizedPhone) {
-      setError('Enter any phone number to continue.');
+      setError('Enter your phone number to continue.');
       return;
     }
     setError('');
@@ -31,10 +31,10 @@ export default function LoginScreen() {
     <Page keyboardAware contentStyle={styles.page}>
       <LinearGradient colors={[colors.night, '#312078']} style={styles.hero}>
         <View style={styles.heroTopRow}>
-          <Pill tone="green">DEMO ACCESS</Pill>
+          <Pill tone="green">PRIVATE ON-DEVICE ACCESS</Pill>
           <RobotMascot size="small" />
         </View>
-        <Text style={styles.heroTitle}>Welcome to SkillPilot AI.</Text>
+        <Text style={styles.heroTitle}>Welcome to SkillPilot.</Text>
         <Text style={styles.heroCaption}>
           Sign in to keep your focused learning journey available on this device.
         </Text>
@@ -46,7 +46,7 @@ export default function LoginScreen() {
         </View>
         <View style={styles.copy}>
           <Text style={styles.title}>Enter your phone number</Text>
-          <Text style={styles.caption}>This is a test login. Any numeric phone number will work.</Text>
+          <Text style={styles.caption}>Use your phone number to reopen the journey stored on this device.</Text>
         </View>
         <TextField
           label="Phone number"
@@ -64,7 +64,7 @@ export default function LoginScreen() {
         <Button label="Continue" icon="arrow-forward" onPress={continueToOtp} />
         <View style={styles.demoNote}>
           <Ionicons name="information-circle-outline" size={18} color={colors.muted} />
-          <Text style={styles.demoText}>No SMS will be sent and no phone number leaves the device.</Text>
+          <Text style={styles.demoText}>Your phone number remains on this device.</Text>
         </View>
       </Card>
     </Page>

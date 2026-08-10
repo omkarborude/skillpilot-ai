@@ -10,7 +10,7 @@ describe('auth store', () => {
     });
   });
 
-  it('persists the demo authentication lifecycle independently from onboarding', () => {
+  it('persists the device authentication lifecycle independently from onboarding', () => {
     useAuthStore.getState().setPhoneNumber('9876543210');
     useAuthStore.getState().authenticate();
 

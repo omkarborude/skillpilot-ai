@@ -1,9 +1,5 @@
 import { LearningPlan, Technique, TechniqueStatus } from '@/types/learning';
 
-export function clonePlan(plan: LearningPlan): LearningPlan {
-  return JSON.parse(JSON.stringify(plan)) as LearningPlan;
-}
-
 export function calculateJourneyProgress(plan: LearningPlan | null): number {
   if (!plan || plan.techniques.length === 0) return 0;
 
