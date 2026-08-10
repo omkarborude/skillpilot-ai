@@ -31,12 +31,12 @@ export default function LoginScreen() {
     <Page keyboardAware contentStyle={styles.page}>
       <LinearGradient colors={[colors.night, '#312078']} style={styles.hero}>
         <View style={styles.heroTopRow}>
-          <Pill tone="green">PRIVATE ON-DEVICE ACCESS</Pill>
+          <Pill tone="green">DEMO • ON-DEVICE DATA</Pill>
           <RobotMascot size="small" />
         </View>
         <Text style={styles.heroTitle}>Welcome to SkillPilot.</Text>
         <Text style={styles.heroCaption}>
-          Sign in to keep your focused learning journey available on this device.
+          This demo keeps one learning journey on this device.
         </Text>
       </LinearGradient>
 
@@ -45,8 +45,8 @@ export default function LoginScreen() {
           <Ionicons name="phone-portrait-outline" size={26} color={colors.primary} />
         </View>
         <View style={styles.copy}>
-          <Text style={styles.title}>Enter your phone number</Text>
-          <Text style={styles.caption}>Use your phone number to reopen the journey stored on this device.</Text>
+          <Text style={styles.title}>Enter a demo phone number</Text>
+          <Text style={styles.caption}>Any phone number works. It is used only as a local label.</Text>
         </View>
         <TextField
           label="Phone number"
@@ -64,7 +64,7 @@ export default function LoginScreen() {
         <Button label="Continue" icon="arrow-forward" onPress={continueToOtp} />
         <View style={styles.demoNote}>
           <Ionicons name="information-circle-outline" size={18} color={colors.muted} />
-          <Text style={styles.demoText}>Your phone number remains on this device.</Text>
+          <Text style={styles.demoText}>No SMS is sent, and this does not create a real account.</Text>
         </View>
       </Card>
     </Page>
